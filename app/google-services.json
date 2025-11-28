@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "913778047106",
+    "project_id": "evolutiontd-6a92a",
+    "storage_bucket": "evolutiontd-6a92a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:913778047106:android:191d21a749a788b532dc9b",
+        "android_client_info": {
+          "package_name": "com.bbb.evolutiontd"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDeCyLkNjCorVFqRWXA-SE73sd-grWNBRg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

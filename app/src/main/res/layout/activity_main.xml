@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#333333">
+
+    <!-- 1. ИГРОВОЙ СЛОЙ -->
+    <FrameLayout
+        android:id="@+id/gameContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- 2. ГЛАВНОЕ МЕНЮ -->
+    <RelativeLayout
+        android:id="@+id/menuMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#F21A1A1A"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="visible"
+        android:elevation="10dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tower Defence"
+                android:textColor="#FFD700"
+                android:textSize="60sp"
+                android:fontFamily="sans-serif-black"
+                android:shadowColor="#000000"
+                android:shadowDx="10"
+                android:shadowDy="10"
+                android:shadowRadius="10"
+                android:layout_marginBottom="5dp"/>
+
+            <Button
+                android:id="@+id/btnEndlessMode"
+                android:layout_width="300dp"
+                android:layout_height="60dp"
+                android:text="ENDLESS MODE"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:backgroundTint="#4CAF50"
+                android:layout_marginBottom="1dp"/>
+
+            <Button
+                android:id="@+id/btnCreator"
+                android:layout_width="300dp"
+                android:layout_height="60dp"
+                android:text="CREATOR"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:backgroundTint="#2196F3"
+                android:layout_marginBottom="1dp"/>
+
+            <Button
+                android:id="@+id/btnExitGame"
+                android:layout_width="300dp"
+                android:layout_height="60dp"
+                android:text="QUIT"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:backgroundTint="#F44336"
+                android:layout_marginBottom="1dp"/>
+
+            <Button
+                android:id="@+id/btnLeaderboard"
+                android:layout_width="80dp"
+                android:layout_height="60dp"
+                android:text="🏆"
+                android:textSize="28sp"
+                android:backgroundTint="#FF9800"/>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- 3. ОКНО ЛИДЕРБОРДА (ТЕПЕРЬ НА ВЕСЬ ЭКРАН) -->
+    <FrameLayout
+        android:id="@+id/overlayLeaderboard"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#333333"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone"
+        android:elevation="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:background="#333333"
+            android:paddingHorizontal="60dp"> <!-- Отступы, чтобы текст не лип к краям -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="LEADERBOARD"
+                android:textColor="#FFD700"
+                android:textSize="30sp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerLeaderboard"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/btnCloseLeaderboard"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:text="CLOSE"
+                android:backgroundTint="#F44336"
+                android:layout_margin="20dp"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- 4. ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
+    <RelativeLayout
+        android:id="@+id/gameHud"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <!-- Верхняя панель -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:background="#80000000">
+            <Button
+                android:id="@+id/btnPause"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:text="||"
+                android:layout_marginEnd="10dp"/>
+            <TextView
+                android:id="@+id/txtWave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wave: 1"
+                android:textColor="#FFF"
+                android:textSize="18sp"
+                android:layout_marginEnd="15dp"/>
+            <TextView
+                android:id="@+id/txtMoney"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="$100"
+                android:textColor="#FFD700"
+                android:textSize="18sp"
+                android:layout_marginEnd="15dp"/>
+            <TextView
+                android:id="@+id/txtLives"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="♥ 20"
+                android:textColor="#F44336"
+                android:textSize="18sp"/>
+        </LinearLayout>
+
+        <!-- Нижние кнопки -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:orientation="horizontal"
+            android:padding="10dp">
+            <Button
+                android:id="@+id/btnSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1x"
+                android:layout_marginEnd="10dp"/>
+            <Button
+                android:id="@+id/btnSkipWave"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SKIP WAVE"
+                android:backgroundTint="#FF9800"/>
+        </LinearLayout>
+
+        <!-- МЕНЮ СПРАВА -->
+        <LinearLayout
+            android:id="@+id/sideMenuContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnToggleMenu"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="top"
+                android:layout_marginTop="10dp"
+                android:text=">"
+                android:backgroundTint="#AA000000"
+                android:padding="0dp"
+                android:textColor="#FFF"
+                android:textSize="20sp"/>
+
+            <LinearLayout
+                android:id="@+id/menuContent"
+                android:layout_width="220dp"
+                android:layout_height="match_parent"
+                android:background="#D9000000"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:id="@+id/shopLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="visible">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="SHOP"
+                        android:textColor="#FFF"
+                        android:gravity="center"
+                        android:textSize="20sp"
+                        android:layout_marginBottom="10dp"/>
+                    <Button
+                        android:id="@+id/btnBuyScout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Scout ($50)"
+                        android:backgroundTint="#4CAF50"/>
+                    <Button
+                        android:id="@+id/btnBuyArtillery"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Artillery ($150)"
+                        android:backgroundTint="#FF5722"/>
+                    <Button
+                        android:id="@+id/btnBuyFrost"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Frost ($200)"
+                        android:backgroundTint="#2196F3"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/upgradeLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/txtTowerStats"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Stats..."
+                        android:textColor="#DDD"
+                        android:layout_marginBottom="5dp"/>
+                    <Button
+                        android:id="@+id/btnTargetStrategy"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:text="Target: First"
+                        android:textSize="12sp"
+                        android:backgroundTint="#673AB7"
+                        android:layout_marginBottom="5dp"/>
+                    <Button
+                        android:id="@+id/btnUpgrade"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Upgrade"
+                        android:backgroundTint="#2196F3"/>
+                    <Button
+                        android:id="@+id/btnSell"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sell"
+                        android:backgroundTint="#F44336"/>
+                    <Button
+                        android:id="@+id/btnCloseShop"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Back"
+                        android:layout_marginTop="10dp"/>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </RelativeLayout>
+
+    <!-- 5. МЕНЮ ПАУЗЫ -->
+    <LinearLayout
+        android:id="@+id/menuPause"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:background="#CC000000"
+        android:visibility="gone"
+        android:elevation="20dp">
+        <TextView
+            android:tag="title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="PAUSED"
+            android:textColor="#FFF"
+            android:textSize="40sp"
+            android:layout_marginBottom="30dp"/>
+        <Button
+            android:id="@+id/btnResume"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="RESUME"
+            android:backgroundTint="#4CAF50"/>
+        <Button
+            android:id="@+id/btnRestart"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="RESTART WAVE 1"
+            android:backgroundTint="#FF9800"/>
+        <Button
+            android:id="@+id/btnMenu"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:text="MAIN MENU"
+            android:backgroundTint="#F44336"/>
+    </LinearLayout>
+</FrameLayout>
