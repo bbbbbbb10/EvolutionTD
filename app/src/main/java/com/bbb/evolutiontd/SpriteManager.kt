@@ -7,19 +7,19 @@ import android.graphics.BitmapFactory
 object SpriteManager {
 
     // --- НАСТРОЙКИ РАЗМЕРА (МАСШТАБ) ---
-    // Меняй эти цифры, чтобы увеличить или уменьшить объекты.
-    // Высота подстроится сама!
+    private const val TOWER_WIDTH = 80
 
-    private const val TOWER_WIDTH = 90      // Размер башен
+    const val ENEMY_NORMAL_WIDTH = 55
+    const val ENEMY_FAST_WIDTH = 50
+    const val ENEMY_TANK_WIDTH = 70
+    const val ENEMY_BOSS_WIDTH = 90
 
-    const val ENEMY_NORMAL_WIDTH = 65        // Обычные враги
-    const val ENEMY_FAST_WIDTH = 60          // Мелкие быстрые
-    const val ENEMY_TANK_WIDTH = 80         // Большие танки
-    const val ENEMY_BOSS_WIDTH = 120        // Огромный босс
-
-    private const val PROJ_SCOUT_WIDTH = 30  // Пули
-    private const val PROJ_ARTILLERY_WIDTH = 45
+    private const val PROJ_SCOUT_WIDTH = 25
+    private const val PROJ_ARTILLERY_WIDTH = 40
     private const val PROJ_FROST_WIDTH = 35
+
+    // Картинки
+    lateinit var gameBackground: Bitmap // Фон
 
     lateinit var towerScout: Bitmap
     lateinit var towerArtillery: Bitmap
@@ -35,6 +35,15 @@ object SpriteManager {
     lateinit var projFrost: Bitmap
 
     fun init(context: Context) {
+        // Загружаем фон (без ресайза, берем оригинал)
+        try {
+            val options = BitmapFactory.Options().apply { inScaled = false }
+            gameBackground = BitmapFactory.decodeResource(context.resources, R.drawable.background, options)
+        } catch (e: Exception) {
+            // Если забыл файл, создаем черный квадрат
+            gameBackground = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+        }
+
         // Башни
         towerScout = loadAndResize(context, R.drawable.tower_scout, TOWER_WIDTH)
         towerArtillery = loadAndResize(context, R.drawable.tower_artillery, TOWER_WIDTH)
@@ -54,20 +63,12 @@ object SpriteManager {
 
     private fun loadAndResize(context: Context, resId: Int, targetWidth: Int): Bitmap {
         try {
-            // 1. Грузим оригинал без обработки Android'ом (чтобы не мылило)
             val options = BitmapFactory.Options().apply { inScaled = false }
             val original = BitmapFactory.decodeResource(context.resources, resId, options)
-
-            // 2. Считаем пропорции (Aspect Ratio)
             val aspectRatio = original.height.toFloat() / original.width.toFloat()
-
-            // 3. Вычисляем высоту на основе ширины
             val targetHeight = (targetWidth * aspectRatio).toInt()
-
-            // 4. Создаем картинку нужного размера БЕЗ фильтрации (false) - для пиксель-арта
             return Bitmap.createScaledBitmap(original, targetWidth, targetHeight, false)
         } catch (e: Exception) {
-            // Заглушка, если файла нет
             return Bitmap.createBitmap(targetWidth, targetWidth, Bitmap.Config.ARGB_8888)
         }
     }

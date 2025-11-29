@@ -14,7 +14,7 @@ enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: 
 
 enum class EnemyType(val speedMod: Float, val hpMod: Float, val rewardMod: Float) {
     NORMAL(1.0f, 1.0f, 1.0f),
-    FAST(1.8f, 0.6f, 1.5f),
+    FAST(1.7f, 0.6f, 1.5f),
     TANK(0.6f, 4.0f, 3.0f),
     BOSS(0.4f, 15.0f, 10.0f)
 }

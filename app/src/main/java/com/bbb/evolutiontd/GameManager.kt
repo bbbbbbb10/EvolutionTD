@@ -32,15 +32,15 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
 
     val path = listOf(
         Point(0f, screenHeight * 0.15f),
-        Point(screenWidth * 0.15f, screenHeight * 0.15f),
-        Point(screenWidth * 0.15f, screenHeight * 0.75f),
-        Point(screenWidth * 0.35f, screenHeight * 0.75f),
-        Point(screenWidth * 0.35f, screenHeight * 0.25f),
-        Point(screenWidth * 0.55f, screenHeight * 0.25f),
-        Point(screenWidth * 0.55f, screenHeight * 0.85f),
-        Point(screenWidth * 0.75f, screenHeight * 0.85f),
-        Point(screenWidth * 0.75f, screenHeight * 0.40f),
-        Point(screenWidth.toFloat(), screenHeight * 0.40f)
+        Point(screenWidth * 0.148f, screenHeight * 0.15f),
+        Point(screenWidth * 0.148f, screenHeight * 0.74f),
+        Point(screenWidth * 0.345f, screenHeight * 0.74f),
+        Point(screenWidth * 0.345f, screenHeight * 0.24f),
+        Point(screenWidth * 0.543f, screenHeight * 0.24f),
+        Point(screenWidth * 0.543f, screenHeight * 0.83f),
+        Point(screenWidth * 0.74f, screenHeight * 0.83f),
+        Point(screenWidth * 0.74f, screenHeight * 0.38f),
+        Point(screenWidth.toFloat(), screenHeight * 0.38f)
     )
 
     fun startGame() {
@@ -48,7 +48,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
         towers.clear()
         projectiles.clear()
         effects.clear()
-        money = 650
+        money = 150
         lives = 20
         wave = 0
         waveCooldown = 0
@@ -148,10 +148,10 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
             else -> EnemyType.NORMAL
         }
 
-        val baseWaveHp = 20f * Math.pow(1.3, wave.toDouble()).toFloat()
+        val baseWaveHp = 20f * Math.pow(1.2, wave.toDouble()).toFloat()
         val finalHp = baseWaveHp * enemyType.hpMod
-        val finalSpeed = 4f * enemyType.speedMod
-        val finalReward = (10 + wave) * enemyType.rewardMod
+        val finalSpeed = 3.2f * enemyType.speedMod
+        val finalReward = 10 * Math.pow(1.1, wave.toDouble()) * enemyType.rewardMod
 
         enemies.add(Enemy(path, finalHp, finalHp, finalSpeed, finalReward.toInt(), enemyType))
     }

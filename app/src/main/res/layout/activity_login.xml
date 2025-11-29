@@ -12,8 +12,9 @@
         android:layout_height="wrap_content"
         android:text="Tower Defence"
         android:textColor="#4CAF50"
-        android:textSize="40sp"
+        android:textSize="25sp"
         android:textStyle="bold"
+        android:fontFamily="@font/pixel_font"
         android:layout_marginBottom="40dp"/>
 
     <!-- ДОБАВЛЕНО: android:maxLength="32" -->
@@ -24,9 +25,12 @@
         android:hint="Enter Username"
         android:textColor="#FFF"
         android:textColorHint="#AAA"
+        android:fontFamily="@font/pixel_solid"
         android:background="#333"
-        android:padding="10dp"
         android:maxLength="24"
+        android:paddingLeft="20dp"
+        android:paddingTop="14dp"
+        android:textSize="12dp"
         android:singleLine="true"
         android:layout_marginBottom="20dp"/>
 
@@ -35,6 +39,9 @@
         android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:text="LOGIN"
+        android:fontFamily="@font/pixel_solid"
+        android:paddingTop="12dp"
+        android:textSize="13dp"
         android:backgroundTint="#4CAF50"
         android:layout_marginBottom="10dp"/>
 
@@ -42,13 +49,17 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="- OR -"
+        android:fontFamily="@font/pixel_zone"
         android:textColor="#AAA"
+        android:textSize="40dp"
         android:layout_marginBottom="10dp"/>
 
     <Button
         android:id="@+id/btnGuest"
         android:layout_width="300dp"
+        android:fontFamily="@font/pixel_solid"
         android:layout_height="wrap_content"
+        android:textSize="11dp"
         android:text="CONTINUE AS GUEST"
         android:backgroundTint="#2196F3"/>
 

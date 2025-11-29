@@ -81,19 +81,16 @@ class MainActivity : AppCompatActivity() {
         setupShopTouchListeners()
         setupMenuToggle()
 
+        // ОСТАВИЛ: Приветствие
         Toast.makeText(this, "Welcome, ${FirebaseHelper.currentUserName}!", Toast.LENGTH_LONG).show()
 
         startUiUpdater()
     }
 
-    // --- АВТО-ПАУЗА ПРИ СВОРАЧИВАНИИ ---
     override fun onPause() {
         super.onPause()
-        // Если игра инициализирована и ИДЕТ (не меню, не геймовер)
         if (::gameManager.isInitialized && gameManager.state == GameState.PLAYING) {
             gameManager.state = GameState.PAUSED
-
-            // Принудительно показываем меню паузы, чтобы когда игрок вернулся, оно уже было
             runOnUiThread {
                 menuPause.visibility = View.VISIBLE
                 btnResume.visibility = View.VISIBLE
@@ -103,7 +100,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // --- СОХРАНЕНИЕ ПРИ ЗАКРЫТИИ ПРИЛОЖЕНИЯ ---
     override fun onDestroy() {
         super.onDestroy()
         if (::gameManager.isInitialized && (gameManager.state == GameState.PLAYING || gameManager.state == GameState.PAUSED)) {
@@ -162,7 +158,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupMenuListeners() {
-        // Endless Mode
         findViewById<Button>(R.id.btnEndlessMode).setOnClickListener {
             gameManager.startGame()
             menuMain.visibility = View.GONE
@@ -171,8 +166,9 @@ class MainActivity : AppCompatActivity() {
             btnResume.visibility = View.VISIBLE
         }
 
+        // ОСТАВИЛ: Made by buwu
         findViewById<Button>(R.id.btnCreator).setOnClickListener {
-            Toast.makeText(this, "Made by buwu", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Made by: buwu", Toast.LENGTH_LONG).show()
         }
 
         findViewById<Button>(R.id.btnExitGame).setOnClickListener {
@@ -190,8 +186,6 @@ class MainActivity : AppCompatActivity() {
             overlayLeaderboard.visibility = View.GONE
         }
 
-        // Пауза / Рестарт
-
         btnResume.setOnClickListener {
             gameManager.state = GameState.PLAYING
             menuPause.visibility = View.GONE
@@ -201,7 +195,6 @@ class MainActivity : AppCompatActivity() {
             if (gameManager.state != GameState.GAMEOVER && gameManager.state != GameState.MENU) {
                 FirebaseHelper.saveScore(gameManager.wave)
             }
-
             gameManager.startGame()
             menuPause.visibility = View.GONE
             btnResume.visibility = View.VISIBLE
@@ -211,7 +204,6 @@ class MainActivity : AppCompatActivity() {
             if (gameManager.state != GameState.GAMEOVER && gameManager.state != GameState.MENU) {
                 FirebaseHelper.saveScore(gameManager.wave)
             }
-
             gameManager.state = GameState.MENU
             menuPause.visibility = View.GONE
             gameHud.visibility = View.GONE
@@ -274,12 +266,8 @@ class MainActivity : AppCompatActivity() {
                     return@OnTouchListener true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    val success = gameView.finishDrag()
-                    if (success) {
-                        Toast.makeText(this, "Башня построена!", Toast.LENGTH_SHORT).show()
-                    } else if (gameManager.money < type.baseCost) {
-                        Toast.makeText(this, "Нужно $${type.baseCost}!", Toast.LENGTH_SHORT).show()
-                    }
+                    // УБРАЛ TOAST ЗДЕСЬ
+                    gameView.finishDrag()
                     return@OnTouchListener true
                 }
             }
@@ -301,9 +289,8 @@ class MainActivity : AppCompatActivity() {
                 val cost = t.upgradeCost()
                 if (gameManager.money >= cost) {
                     gameManager.money -= cost; t.upgrade(); updateTowerPanel(t)
-                } else {
-                    Toast.makeText(this, "Не хватает денег!", Toast.LENGTH_SHORT).show()
                 }
+                // УБРАЛ TOAST ЗДЕСЬ (Else block removed)
             }
         }
         btnSell.setOnClickListener {

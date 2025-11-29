@@ -15,7 +15,7 @@
         android:id="@+id/menuMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F21A1A1A"
+        android:background="#EF1A1A1A"
         android:clickable="true"
         android:focusable="true"
         android:visibility="visible"
@@ -33,50 +33,58 @@
                 android:layout_height="wrap_content"
                 android:text="Tower Defence"
                 android:textColor="#FFD700"
-                android:textSize="60sp"
-                android:fontFamily="sans-serif-black"
+                android:textSize="40sp"
+                android:fontFamily="@font/pixel_font"
                 android:shadowColor="#000000"
                 android:shadowDx="10"
                 android:shadowDy="10"
                 android:shadowRadius="10"
-                android:layout_marginBottom="5dp"/>
+                android:layout_marginBottom="5dp"
+                />
 
             <Button
                 android:id="@+id/btnEndlessMode"
-                android:layout_width="300dp"
+                android:layout_width="200dp"
                 android:layout_height="60dp"
                 android:text="ENDLESS MODE"
-                android:textSize="20sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="#FFF"
                 android:backgroundTint="#4CAF50"
-                android:layout_marginBottom="1dp"/>
+                android:layout_marginBottom="1dp"
+                android:paddingBottom="1dp"
+                android:fontFamily="@font/pixel_solid" />
 
             <Button
                 android:id="@+id/btnCreator"
-                android:layout_width="300dp"
+                android:layout_width="200dp"
                 android:layout_height="60dp"
                 android:text="CREATOR"
-                android:textSize="20sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="#FFF"
                 android:backgroundTint="#2196F3"
-                android:layout_marginBottom="1dp"/>
+                android:layout_marginBottom="1dp"
+                android:paddingBottom="1dp"
+                android:fontFamily="@font/pixel_solid"
+                />
 
             <Button
                 android:id="@+id/btnExitGame"
-                android:layout_width="300dp"
+                android:layout_width="200dp"
                 android:layout_height="60dp"
                 android:text="QUIT"
-                android:textSize="20sp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="#FFF"
                 android:backgroundTint="#F44336"
-                android:layout_marginBottom="1dp"/>
+                android:layout_marginBottom="1dp"
+                android:paddingBottom="1dp"
+                android:fontFamily="@font/pixel_solid" />
 
             <Button
                 android:id="@+id/btnLeaderboard"
-                android:layout_width="80dp"
+                android:layout_width="100dp"
                 android:layout_height="60dp"
                 android:text="🏆"
                 android:textSize="28sp"
@@ -85,7 +93,7 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- 3. ОКНО ЛИДЕРБОРДА (ТЕПЕРЬ НА ВЕСЬ ЭКРАН) -->
+    <!-- 3. ОКНО ЛИДЕРБОРДА -->
     <FrameLayout
         android:id="@+id/overlayLeaderboard"
         android:layout_width="match_parent"
@@ -109,10 +117,11 @@
                 android:layout_height="wrap_content"
                 android:text="LEADERBOARD"
                 android:textColor="#FFD700"
-                android:textSize="30sp"
+                android:textSize="25sp"
                 android:gravity="center"
                 android:textStyle="bold"
                 android:paddingTop="20dp"
+                android:fontFamily="@font/pixel_solid"
                 android:paddingBottom="20dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -123,10 +132,12 @@
 
             <Button
                 android:id="@+id/btnCloseLeaderboard"
-                android:layout_width="300dp"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:text="CLOSE"
                 android:backgroundTint="#F44336"
+                android:fontFamily="@font/pixel_solid"
+                android:paddingBottom="1dp"
                 android:layout_margin="20dp"/>
         </LinearLayout>
     </FrameLayout>
@@ -144,20 +155,21 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="10dp"
-            android:background="#80000000">
+            android:background="#48000000">
             <Button
                 android:id="@+id/btnPause"
-                android:layout_width="50dp"
-                android:layout_height="wrap_content"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:text="||"
-                android:layout_marginEnd="10dp"/>
+                android:layout_marginEnd="5dp"/>
             <TextView
                 android:id="@+id/txtWave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Wave: 1"
                 android:textColor="#FFF"
-                android:textSize="18sp"
+                android:textSize="10sp"
+                android:fontFamily="@font/pixel_solid"
                 android:layout_marginEnd="15dp"/>
             <TextView
                 android:id="@+id/txtMoney"
@@ -165,15 +177,17 @@
                 android:layout_height="wrap_content"
                 android:text="$100"
                 android:textColor="#FFD700"
-                android:textSize="18sp"
+                android:fontFamily="@font/pixel_solid"
+                android:textSize="10dp"
                 android:layout_marginEnd="15dp"/>
             <TextView
                 android:id="@+id/txtLives"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="♥ 20"
+                android:text="♥20"
                 android:textColor="#F44336"
-                android:textSize="18sp"/>
+                android:fontFamily="@font/pixel_solid"
+                android:textSize="11dp" />
         </LinearLayout>
 
         <!-- Нижние кнопки -->
@@ -189,12 +203,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="1x"
+                android:fontFamily="@font/pixel_solid"
+                android:textSize="12dp"
+                android:paddingBottom="1dp"
                 android:layout_marginEnd="10dp"/>
             <Button
                 android:id="@+id/btnSkipWave"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="SKIP WAVE"
+                android:fontFamily="@font/pixel_solid"
+                android:textSize="11dp"
+                android:paddingBottom="1dp"
                 android:backgroundTint="#FF9800"/>
         </LinearLayout>
 
@@ -222,7 +242,7 @@
                 android:id="@+id/menuContent"
                 android:layout_width="220dp"
                 android:layout_height="match_parent"
-                android:background="#D9000000"
+                android:background="#A5000000"
                 android:orientation="vertical"
                 android:padding="10dp">
 
@@ -238,28 +258,38 @@
                         android:text="SHOP"
                         android:textColor="#FFF"
                         android:gravity="center"
-                        android:textSize="20sp"
+                        android:textSize="18sp"
+                        android:fontFamily="@font/pixel_solid"
                         android:layout_marginBottom="10dp"/>
                     <Button
                         android:id="@+id/btnBuyScout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Scout ($50)"
-                        android:backgroundTint="#4CAF50"/>
+                        android:text="Scout($50)"
+                        android:fontFamily="@font/pixel_solid"
+                        android:textSize="10dp"
+                        android:paddingBottom="1dp"
+                        android:backgroundTint="#BF4CAF50"/>
                     <Button
                         android:id="@+id/btnBuyArtillery"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Artillery ($150)"
-                        android:backgroundTint="#FF5722"/>
+                        android:text="Artillery($150)"
+                        android:fontFamily="@font/pixel_solid"
+                        android:textSize="9dp"
+                        android:paddingBottom="1dp"
+                        android:backgroundTint="#BFFF5722"/>
                     <Button
                         android:id="@+id/btnBuyFrost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Frost ($200)"
-                        android:backgroundTint="#2196F3"/>
+                        android:text="Frost($200)"
+                        android:fontFamily="@font/pixel_solid"
+                        android:textSize="10dp"
+                        android:paddingBottom="1dp"
+                        android:backgroundTint="#BF2196F3"/>
                 </LinearLayout>
-
+                <!-- МЕНЮ АПГРЕЙДЫЫЫ -->
                 <LinearLayout
                     android:id="@+id/upgradeLayout"
                     android:layout_width="match_parent"
@@ -272,32 +302,46 @@
                         android:layout_height="wrap_content"
                         android:text="Stats..."
                         android:textColor="#DDD"
+                        android:textSize="7dp"
+                        android:fontFamily="@font/pixel_solid"
+                        android:paddingBottom="1dp"
                         android:layout_marginBottom="5dp"/>
                     <Button
                         android:id="@+id/btnTargetStrategy"
                         android:layout_width="match_parent"
                         android:layout_height="40dp"
                         android:text="Target: First"
-                        android:textSize="12sp"
+                        android:textSize="8sp"
+                        android:fontFamily="@font/pixel_solid"
                         android:backgroundTint="#673AB7"
+                        android:paddingBottom="1dp"
                         android:layout_marginBottom="5dp"/>
                     <Button
                         android:id="@+id/btnUpgrade"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Upgrade"
+                        android:textSize="10dp"
+                        android:fontFamily="@font/pixel_solid"
+                        android:paddingBottom="1dp"
                         android:backgroundTint="#2196F3"/>
                     <Button
                         android:id="@+id/btnSell"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Sell"
+                        android:textSize="10dp"
+                        android:fontFamily="@font/pixel_solid"
+                        android:paddingBottom="1dp"
                         android:backgroundTint="#F44336"/>
                     <Button
                         android:id="@+id/btnCloseShop"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Back"
+                        android:textSize="10dp"
+                        android:fontFamily="@font/pixel_solid"
+                        android:paddingBottom="1dp"
                         android:layout_marginTop="10dp"/>
                 </LinearLayout>
             </LinearLayout>

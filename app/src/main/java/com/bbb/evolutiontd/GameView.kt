@@ -15,27 +15,28 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
     private var gameLoop: GameLoop? = null
     var onTowerSelected: ((Tower?) -> Unit)? = null
 
-    // Кисть для спрайтов (без сглаживания)
+    // Кисть для СПРАЙТОВ (без сглаживания)
     private val paint = Paint().apply {
         isAntiAlias = false
         isFilterBitmap = false
         isDither = false
     }
 
-    // Кисть для UI (радиусы)
+    // Кисть для UI (сглаживание включено)
     private val uiPaint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
     }
 
-    // Текст уровня (большой)
+    // --- ТЕКСТЫ (Стандартный шрифт) ---
     private val textPaint = Paint().apply {
         color = Color.WHITE
         textSize = 30f
         isAntiAlias = true
         textAlign = Paint.Align.CENTER
-        typeface = Typeface.DEFAULT_BOLD
+        typeface = Typeface.DEFAULT_BOLD // Системный жирный
     }
+
     private val textStrokePaint = Paint().apply {
         color = Color.BLACK
         textSize = 30f
@@ -46,7 +47,6 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         strokeWidth = 4f
     }
 
-    // Текст ХП врагов (поменьше)
     private val hpTextPaint = Paint().apply {
         color = Color.WHITE
         textSize = 24f
@@ -54,6 +54,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         textAlign = Paint.Align.CENTER
         typeface = Typeface.DEFAULT_BOLD
     }
+
     private val hpStrokePaint = Paint().apply {
         color = Color.BLACK
         textSize = 24f
@@ -64,13 +65,11 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         strokeWidth = 3f
     }
 
-    private val pathObj = Path()
+    // Фильтры
     private val frozenFilter = LightingColorFilter(0xFF8888FF.toInt(), 0x00000033)
-
-    // --- ИЗМЕНЕНИЕ ЗДЕСЬ: Красный фильтр для подсветки ---
-    // 0xFFFF8888 -> Оставляем 100% красного, но уменьшаем зеленый и синий каналы исходника
-    // 0x440000 -> Добавляем дополнительную красноту сверху
     private val selectedFilter = LightingColorFilter(0xFFFF8888.toInt(), 0x440000)
+
+    private val backgroundRect = Rect()
 
     // Drag state
     var isDragging = false
@@ -113,46 +112,37 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         gameLoop?.setRunning(true)
         gameLoop?.start()
     }
-    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        backgroundRect.set(0, 0, width, height)
+    }
+
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         var retry = true
         gameLoop?.setRunning(false)
-        while (retry) { try { gameLoop?.join(); retry = false } catch (e: InterruptedException) {} }
+        while (retry) {
+            try { gameLoop?.join(); retry = false } catch (e: InterruptedException) { e.printStackTrace() }
+        }
     }
 
     override fun draw(canvas: Canvas) {
         super.draw(canvas)
         if (canvas == null) return
 
-        canvas.drawColor(Color.parseColor("#263238"))
+        // 1. Фон
+        canvas.drawBitmap(SpriteManager.gameBackground, null, backgroundRect, null)
 
-        // --- ПУТЬ ---
-        if (gameManager.path.isNotEmpty()) {
-            pathObj.reset()
-            pathObj.moveTo(gameManager.path[0].x, gameManager.path[0].y)
-            for (i in 1 until gameManager.path.size) pathObj.lineTo(gameManager.path[i].x, gameManager.path[i].y)
-            paint.isAntiAlias = true
-            paint.color = Color.parseColor("#546E7A")
-            paint.style = Paint.Style.STROKE
-            paint.strokeWidth = 60f
-            paint.strokeCap = Paint.Cap.ROUND
-            paint.strokeJoin = Paint.Join.ROUND
-            canvas.drawPath(pathObj, paint)
-            paint.isAntiAlias = false
-            paint.style = Paint.Style.FILL
-        }
-
-        // --- БАШНИ ---
+        // 2. Башни
         for (tower in gameManager.towers) {
             val bitmap = when(tower.type) {
                 TowerType.SCOUT -> SpriteManager.towerScout
                 TowerType.ARTILLERY -> SpriteManager.towerArtillery
                 TowerType.FROST -> SpriteManager.towerFrost
             }
+
             canvas.save()
             canvas.translate(tower.x, tower.y)
 
-            // Если башня выбрана -> применяем КРАСНЫЙ фильтр
             if (tower.isSelected) {
                 paint.colorFilter = selectedFilter
             } else {
@@ -160,15 +150,12 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             }
 
             canvas.drawBitmap(bitmap, -bitmap.width / 2f, -bitmap.height / 2f, paint)
-
-            // Сбрасываем фильтр
             paint.colorFilter = null
             canvas.restore()
 
-            // УРОВЕНЬ
+            // Уровень
             val levelText = "Lvl ${tower.level}"
             val textY = tower.y + bitmap.height/2 - 10f
-
             canvas.drawText(levelText, tower.x, textY, textStrokePaint)
             canvas.drawText(levelText, tower.x, textY, textPaint)
 
@@ -177,7 +164,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             }
         }
 
-        // --- ВРАГИ ---
+        // 3. Враги
         for (enemy in gameManager.enemies) {
             val bitmap = when (enemy.type) {
                 EnemyType.BOSS -> SpriteManager.enemyBoss
@@ -185,6 +172,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
                 EnemyType.FAST -> SpriteManager.enemyFast
                 EnemyType.NORMAL -> SpriteManager.enemyNormal
             }
+
             canvas.save()
             canvas.translate(enemy.x, enemy.y)
             if (enemy.isFrozen) paint.colorFilter = frozenFilter else paint.colorFilter = null
@@ -207,24 +195,36 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             canvas.drawText(hpText, enemy.x, textY, hpTextPaint)
         }
 
-        // --- СНАРЯДЫ ---
+        // 4. Снаряды
         for (p in gameManager.projectiles) {
-            val projBitmap = when (p.type) { TowerType.SCOUT -> SpriteManager.projScout; TowerType.ARTILLERY -> SpriteManager.projArtillery; TowerType.FROST -> SpriteManager.projFrost }
-            canvas.save(); canvas.translate(p.x, p.y); canvas.rotate(p.angle); canvas.drawBitmap(projBitmap, -projBitmap.width / 2f, -projBitmap.height / 2f, paint); canvas.restore()
+            val projBitmap = when (p.type) {
+                TowerType.SCOUT -> SpriteManager.projScout
+                TowerType.ARTILLERY -> SpriteManager.projArtillery
+                TowerType.FROST -> SpriteManager.projFrost
+            }
+            canvas.save()
+            canvas.translate(p.x, p.y)
+            canvas.rotate(p.angle)
+            canvas.drawBitmap(projBitmap, -projBitmap.width / 2f, -projBitmap.height / 2f, paint)
+            canvas.restore()
         }
 
-        // --- ЭФФЕКТЫ ---
+        // 5. Эффекты
         for (effect in gameManager.effects) {
             if (effect.type == EffectType.EXPLOSION) {
                 uiPaint.style = Paint.Style.FILL
                 uiPaint.color = Color.argb(150, 255, 100, 0)
                 val radius = 20f + (effect.age * 5f)
                 canvas.drawCircle(effect.x, effect.y, radius, uiPaint)
-                uiPaint.style = Paint.Style.STROKE; uiPaint.strokeWidth=2f; uiPaint.color = Color.WHITE; canvas.drawCircle(effect.x, effect.y, radius * 0.7f, uiPaint)
+
+                uiPaint.style = Paint.Style.STROKE
+                uiPaint.strokeWidth = 2f
+                uiPaint.color = Color.WHITE
+                canvas.drawCircle(effect.x, effect.y, radius * 0.7f, uiPaint)
             }
         }
 
-        // --- DRAG PREVIEW ---
+        // 6. Drag Preview
         if (isDragging && dragTowerType != null) {
             val type = dragTowerType!!
             val bitmap = when(type) {
@@ -262,8 +262,10 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             var clickedTower: Tower? = null
             val clickRadius = 60f
             for (tower in gameManager.towers) {
-                if (x >= tower.x - clickRadius && x <= tower.x + clickRadius && y >= tower.y - clickRadius && y <= tower.y + clickRadius) {
-                    clickedTower = tower; break
+                if (x >= tower.x - clickRadius && x <= tower.x + clickRadius &&
+                    y >= tower.y - clickRadius && y <= tower.y + clickRadius) {
+                    clickedTower = tower
+                    break
                 }
             }
             if (clickedTower != null) {
