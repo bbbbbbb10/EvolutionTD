@@ -349,7 +349,7 @@ class MainActivity : AppCompatActivity() {
                                     btnResume.visibility = View.GONE
                                     menuPause.visibility = View.VISIBLE
                                     val title = menuPause.findViewWithTag<TextView>("title")
-                                    title?.text = "GAME OVER (Wave ${gameManager.wave})"
+                                    title?.text = "GAME OVER(Wave ${gameManager.wave})"
                                     txtWave.text = "GAME OVER"
                                 }
                             }

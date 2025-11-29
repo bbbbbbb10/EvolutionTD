@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tower Defence"
+                android:text="Pixel Defence"
                 android:textColor="#FFD700"
                 android:textSize="40sp"
                 android:fontFamily="@font/pixel_font"
@@ -39,8 +39,7 @@
                 android:shadowDx="10"
                 android:shadowDy="10"
                 android:shadowRadius="10"
-                android:layout_marginBottom="5dp"
-                />
+                android:layout_marginBottom="5dp" />
 
             <Button
                 android:id="@+id/btnEndlessMode"
@@ -204,7 +203,7 @@
                 android:layout_height="wrap_content"
                 android:text="1x"
                 android:fontFamily="@font/pixel_solid"
-                android:textSize="12dp"
+                android:textSize="11dp"
                 android:paddingBottom="1dp"
                 android:layout_marginEnd="10dp"/>
             <Button
@@ -363,26 +362,40 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="PAUSED"
-            android:textColor="#FFF"
-            android:textSize="40sp"
-            android:layout_marginBottom="30dp"/>
+            android:textColor="#FFD700"
+            android:textSize="35dp"
+            android:shadowColor="#000000"
+            android:shadowDx="10"
+            android:shadowDy="10"
+            android:shadowRadius="10"
+            android:fontFamily="@font/pixel_font"
+            android:layout_marginBottom="20dp"/>
         <Button
             android:id="@+id/btnResume"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="RESUME"
+            android:textSize="11dp"
+            android:paddingBottom="1dp"
+            android:fontFamily="@font/pixel_solid"
             android:backgroundTint="#4CAF50"/>
         <Button
             android:id="@+id/btnRestart"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="RESTART WAVE 1"
+            android:textSize="11dp"
+            android:paddingBottom="1dp"
+            android:fontFamily="@font/pixel_solid"
             android:backgroundTint="#FF9800"/>
         <Button
             android:id="@+id/btnMenu"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
             android:text="MAIN MENU"
+            android:textSize="11dp"
+            android:paddingBottom="1dp"
+            android:fontFamily="@font/pixel_solid"
             android:backgroundTint="#F44336"/>
     </LinearLayout>
 </FrameLayout>
