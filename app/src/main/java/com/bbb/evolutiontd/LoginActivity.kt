@@ -19,7 +19,6 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        // Инициализация SharedPreferences
         prefs = getSharedPreferences("EvolutionTD_Prefs", Context.MODE_PRIVATE)
 
         val etUsername = findViewById<EditText>(R.id.etUsername)
@@ -31,22 +30,32 @@ class LoginActivity : AppCompatActivity() {
         val savedUser = prefs.getString("username", null)
 
         if (savedUser != null) {
+            // Показываем загрузку
             progressBar.visibility = View.VISIBLE
             btnLogin.visibility = View.GONE
             btnGuest.visibility = View.GONE
             etUsername.visibility = View.GONE
 
-            FirebaseHelper.verifySavedUser(savedUser) { isValid ->
-                if (isValid) {
-                    goToMain()
-                } else {
-                    prefs.edit().remove("username").apply()
-                    Toast.makeText(this, "Session expired or Data Base cleared", Toast.LENGTH_SHORT).show()
+            FirebaseHelper.verifySavedUser(savedUser) { result ->
+                when (result) {
+                    1, 0 -> {
+                        // 1 = Успех, 0 = Нет интернета (но юзер был сохранен)
+                        // В обоих случаях пускаем в игру!
+                        FirebaseHelper.currentUserName = savedUser // На всякий случай
+                        goToMain()
+                    }
+                    2 -> {
+                        // 2 = База ответила, что юзера нет (удалили)
+                        // Только тогда стираем сохранение
+                        prefs.edit().remove("username").apply()
+                        Toast.makeText(this, "User deleted from DB. Please login again.", Toast.LENGTH_LONG).show()
 
-                    progressBar.visibility = View.GONE
-                    btnLogin.visibility = View.VISIBLE
-                    btnGuest.visibility = View.VISIBLE
-                    etUsername.visibility = View.VISIBLE
+                        // Возвращаем интерфейс
+                        progressBar.visibility = View.GONE
+                        btnLogin.visibility = View.VISIBLE
+                        btnGuest.visibility = View.VISIBLE
+                        etUsername.visibility = View.VISIBLE
+                    }
                 }
             }
         }
@@ -63,19 +72,15 @@ class LoginActivity : AppCompatActivity() {
             btnGuest.isEnabled = true
         }
 
-        // ОБРАБОТКА КНОПКИ LOGIN
         btnLogin.setOnClickListener {
             val name = etUsername.text.toString().trim()
 
-            // ПРОВЕРКА ДЛИНЫ (Хотя XML ограничивает ввод, это защита от вставки)
-            if (name.length > 24) {
-                Toast.makeText(this, "Nickname too long! Max 24 chars.", Toast.LENGTH_SHORT).show()
+            if (name.length > 32) {
+                Toast.makeText(this, "Nickname too long!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            // Запрещаем спецсимволы в путях Firebase (., #, $, [, ])
             if (name.contains(".") || name.contains("#") || name.contains("$") || name.contains("[") || name.contains("]")) {
-                Toast.makeText(this, "Invalid characters in name!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Invalid characters!", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -95,7 +100,6 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // ОБРАБОТКА КНОПКИ GUEST
         btnGuest.setOnClickListener {
             startLoading()
             FirebaseHelper.login(null) { success, message ->

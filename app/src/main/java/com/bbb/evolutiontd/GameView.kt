@@ -15,26 +15,23 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
     private var gameLoop: GameLoop? = null
     var onTowerSelected: ((Tower?) -> Unit)? = null
 
-    // Кисть для СПРАЙТОВ (без сглаживания)
     private val paint = Paint().apply {
         isAntiAlias = false
         isFilterBitmap = false
         isDither = false
     }
 
-    // Кисть для UI (сглаживание включено)
     private val uiPaint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
     }
 
-    // --- ТЕКСТЫ (Стандартный шрифт) ---
     private val textPaint = Paint().apply {
         color = Color.WHITE
         textSize = 30f
         isAntiAlias = true
         textAlign = Paint.Align.CENTER
-        typeface = Typeface.DEFAULT_BOLD // Системный жирный
+        typeface = Typeface.DEFAULT_BOLD
     }
 
     private val textStrokePaint = Paint().apply {
@@ -65,13 +62,11 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         strokeWidth = 3f
     }
 
-    // Фильтры
     private val frozenFilter = LightingColorFilter(0xFF8888FF.toInt(), 0x00000033)
     private val selectedFilter = LightingColorFilter(0xFFFF8888.toInt(), 0x440000)
 
     private val backgroundRect = Rect()
 
-    // Drag state
     var isDragging = false
     var dragTowerType: TowerType? = null
     var dragX = 0f
@@ -129,10 +124,9 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         super.draw(canvas)
         if (canvas == null) return
 
-        // 1. Фон
         canvas.drawBitmap(SpriteManager.gameBackground, null, backgroundRect, null)
 
-        // 2. Башни
+        // --- БАШНИ ---
         for (tower in gameManager.towers) {
             val bitmap = when(tower.type) {
                 TowerType.SCOUT -> SpriteManager.towerScout
@@ -153,7 +147,6 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             paint.colorFilter = null
             canvas.restore()
 
-            // Уровень
             val levelText = "Lvl ${tower.level}"
             val textY = tower.y + bitmap.height/2 - 10f
             canvas.drawText(levelText, tower.x, textY, textStrokePaint)
@@ -164,7 +157,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             }
         }
 
-        // 3. Враги
+        // --- ВРАГИ (С АНИМАЦИЕЙ КАЧАНИЯ) ---
         for (enemy in gameManager.enemies) {
             val bitmap = when (enemy.type) {
                 EnemyType.BOSS -> SpriteManager.enemyBoss
@@ -175,11 +168,17 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
 
             canvas.save()
             canvas.translate(enemy.x, enemy.y)
+
+            // НОВОЕ: Вращаем монстра
+            canvas.rotate(enemy.getSwayAngle())
+
             if (enemy.isFrozen) paint.colorFilter = frozenFilter else paint.colorFilter = null
             canvas.drawBitmap(bitmap, -bitmap.width / 2f, -bitmap.height / 2f, paint)
             paint.colorFilter = null
+
             canvas.restore()
 
+            // Рисуем HP (оно не крутится, так как после restore)
             val hpYOffset = (bitmap.height / 2f) + 10f
             val hpWidth = bitmap.width.toFloat()
 
@@ -195,7 +194,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             canvas.drawText(hpText, enemy.x, textY, hpTextPaint)
         }
 
-        // 4. Снаряды
+        // --- СНАРЯДЫ ---
         for (p in gameManager.projectiles) {
             val projBitmap = when (p.type) {
                 TowerType.SCOUT -> SpriteManager.projScout
@@ -209,7 +208,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             canvas.restore()
         }
 
-        // 5. Эффекты
+        // --- ЭФФЕКТЫ ---
         for (effect in gameManager.effects) {
             if (effect.type == EffectType.EXPLOSION) {
                 uiPaint.style = Paint.Style.FILL
@@ -224,7 +223,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             }
         }
 
-        // 6. Drag Preview
+        // --- DRAG PREVIEW ---
         if (isDragging && dragTowerType != null) {
             val type = dragTowerType!!
             val bitmap = when(type) {

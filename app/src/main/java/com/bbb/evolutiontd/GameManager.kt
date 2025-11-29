@@ -148,9 +148,9 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
             else -> EnemyType.NORMAL
         }
 
-        val baseWaveHp = 20f * Math.pow(1.2, wave.toDouble()).toFloat()
+        val baseWaveHp = 20f * Math.pow(1.25, wave.toDouble()).toFloat()
         val finalHp = baseWaveHp * enemyType.hpMod
-        val finalSpeed = 3.2f * enemyType.speedMod
+        val finalSpeed = 3.3f * enemyType.speedMod
         val finalReward = 10 * Math.pow(1.1, wave.toDouble()) * enemyType.rewardMod
 
         enemies.add(Enemy(path, finalHp, finalHp, finalSpeed, finalReward.toInt(), enemyType))

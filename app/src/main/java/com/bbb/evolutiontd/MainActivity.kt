@@ -1,12 +1,18 @@
 package com.bbb.evolutiontd
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.MotionEvent
 import android.view.View
+import android.view.WindowManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bbb.evolutiontd.model.TargetStrategy
@@ -64,13 +70,22 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 1. Скрываем системные панели СРАЗУ при создании
+        hideSystemUI()
+
         setContentView(R.layout.activity_main)
 
         SpriteManager.init(this)
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-        gameManager = GameManager(displayMetrics.widthPixels, displayMetrics.heightPixels)
+
+        // Используем реальные размеры экрана (включая области под камерой и кнопками)
+        val realWidth = displayMetrics.widthPixels
+        val realHeight = displayMetrics.heightPixels
+
+        gameManager = GameManager(realWidth, realHeight)
         gameView = GameView(this, gameManager)
 
         findViewById<FrameLayout>(R.id.gameContainer).addView(gameView)
@@ -81,11 +96,39 @@ class MainActivity : AppCompatActivity() {
         setupShopTouchListeners()
         setupMenuToggle()
 
-        // ОСТАВИЛ: Приветствие
         Toast.makeText(this, "Welcome, ${FirebaseHelper.currentUserName}!", Toast.LENGTH_LONG).show()
 
         startUiUpdater()
     }
+
+    // 2. Гарантируем скрытие панелей, если фокус вернулся (например, закрыли шторку уведомлений)
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            hideSystemUI()
+        }
+    }
+
+    // --- ФУНКЦИЯ ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА ---
+    private fun hideSystemUI() {
+        // Заставляем контент рисоваться под системными барами
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        // Скрываем и навигацию (снизу), и статус бар (сверху)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        // Бары появятся, если свайпнуть от края, и потом снова исчезнут
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        // ВАЖНО ДЛЯ POCO / XIAOMI / SAMSUNG:
+        // Разрешаем рисовать в области выреза камеры (Notch)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val attrib = window.attributes
+            attrib.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+            window.attributes = attrib
+        }
+    }
+    // -----------------------------------------
 
     override fun onPause() {
         super.onPause()
@@ -166,7 +209,6 @@ class MainActivity : AppCompatActivity() {
             btnResume.visibility = View.VISIBLE
         }
 
-        // ОСТАВИЛ: Made by buwu
         findViewById<Button>(R.id.btnCreator).setOnClickListener {
             Toast.makeText(this, "Made by: buwu", Toast.LENGTH_LONG).show()
         }
@@ -189,6 +231,8 @@ class MainActivity : AppCompatActivity() {
         btnResume.setOnClickListener {
             gameManager.state = GameState.PLAYING
             menuPause.visibility = View.GONE
+            // При возврате в игру снова скрываем UI на всякий случай
+            hideSystemUI()
         }
 
         findViewById<Button>(R.id.btnRestart).setOnClickListener {
@@ -266,7 +310,6 @@ class MainActivity : AppCompatActivity() {
                     return@OnTouchListener true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    // УБРАЛ TOAST ЗДЕСЬ
                     gameView.finishDrag()
                     return@OnTouchListener true
                 }
@@ -290,7 +333,6 @@ class MainActivity : AppCompatActivity() {
                 if (gameManager.money >= cost) {
                     gameManager.money -= cost; t.upgrade(); updateTowerPanel(t)
                 }
-                // УБРАЛ TOAST ЗДЕСЬ (Else block removed)
             }
         }
         btnSell.setOnClickListener {
@@ -349,7 +391,7 @@ class MainActivity : AppCompatActivity() {
                                     btnResume.visibility = View.GONE
                                     menuPause.visibility = View.VISIBLE
                                     val title = menuPause.findViewWithTag<TextView>("title")
-                                    title?.text = "GAME OVER(Wave ${gameManager.wave})"
+                                    title?.text = "GAME OVER (Wave ${gameManager.wave})"
                                     txtWave.text = "GAME OVER"
                                 }
                             }

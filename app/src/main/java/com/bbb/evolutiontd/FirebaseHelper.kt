@@ -2,7 +2,6 @@ package com.bbb.evolutiontd
 
 import com.google.firebase.Firebase
 import com.google.firebase.database.*
-
 data class UserRecord(
     val name: String = "",
     val bestWave: Int = 0
@@ -14,32 +13,29 @@ object FirebaseHelper {
     var currentUserName: String = "Unknown"
     var currentBestWave: Int = 0
 
-    // Проверка сохраненного пользователя (Авто-вход)
-    fun verifySavedUser(name: String, onResult: (Boolean) -> Unit) {
+    // Проверка при авто-входе
+    fun verifySavedUser(name: String, onResult: (Int) -> Unit) {
         val userRef = database.child("users").child(name)
         userRef.get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
-                // Юзер есть в базе, загружаем
                 val record = snapshot.getValue(UserRecord::class.java)
                 currentUserName = record?.name ?: name
                 currentBestWave = record?.bestWave ?: 0
-                onResult(true)
+                onResult(1) // Успех
             } else {
-                // Юзера нет в базе (возможно, базу очистили)
-                onResult(false)
+                onResult(2) // Юзера нет в базе
             }
         }.addOnFailureListener {
-            onResult(false) // Ошибка сети
+            currentUserName = name
+            onResult(0) // Ошибка сети (пускаем офлайн)
         }
     }
 
-    // Попытка входа / Регистрации
+    // Вход
     fun login(username: String?, onComplete: (Boolean, String?) -> Unit) {
         if (!username.isNullOrEmpty()) {
-            // Игрок ввел ник. Проверяем, свободен ли он.
             checkAndSignIn(username, onComplete)
         } else {
-            // Гость. Генерируем уникального.
             registerGuest(onComplete)
         }
     }
@@ -48,14 +44,17 @@ object FirebaseHelper {
         val userRef = database.child("users").child(name)
         userRef.get().addOnSuccessListener { snapshot ->
             if (snapshot.exists()) {
-                // ТАКОЙ НИК УЖЕ ЕСТЬ! Запрещаем вход.
                 onComplete(false, "Username already taken!")
             } else {
-                // Ник свободен, создаем
+                // Создаем нового юзера
                 currentUserName = name
                 currentBestWave = 0
-                saveScore(0)
-                onComplete(true, null)
+
+                // ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНО ПИШЕМ В БАЗУ
+                val newUser = UserRecord(name, 0)
+                userRef.setValue(newUser)
+                    .addOnSuccessListener { onComplete(true, null) }
+                    .addOnFailureListener { onComplete(false, "DB Error") }
             }
         }.addOnFailureListener {
             onComplete(false, "Network error")
@@ -68,7 +67,6 @@ object FirebaseHelper {
         counterRef.runTransaction(object : Transaction.Handler {
             override fun doTransaction(currentData: MutableData): Transaction.Result {
                 var value = currentData.getValue(Int::class.java) ?: 0
-                // Увеличиваем счетчик
                 currentData.value = value + 1
                 return Transaction.success(currentData)
             }
@@ -77,10 +75,14 @@ object FirebaseHelper {
                 if (committed) {
                     val count = (currentData?.getValue(Int::class.java) ?: 1) - 1
                     val name = "Guest$count"
-                    // Для гостя проверку делать не надо, мы гарантировали уникальность счетчиком
+
                     currentUserName = name
                     currentBestWave = 0
-                    saveScore(0)
+
+                    // ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНО ПИШЕМ В БАЗУ
+                    val newUser = UserRecord(name, 0)
+                    database.child("users").child(name).setValue(newUser)
+
                     onComplete(true, null)
                 } else {
                     onComplete(false, "Error creating guest")
@@ -89,7 +91,11 @@ object FirebaseHelper {
         })
     }
 
+    // Сохранение рекорда (используется только при Game Over)
     fun saveScore(wave: Int) {
+        if (currentUserName == "Unknown") return
+
+        // Если волна больше рекорда -> обновляем
         if (wave > currentBestWave) {
             currentBestWave = wave
             val userRef = database.child("users").child(currentUserName)
