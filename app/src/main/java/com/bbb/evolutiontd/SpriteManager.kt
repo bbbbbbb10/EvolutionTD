@@ -8,8 +8,8 @@ object SpriteManager {
 
     // --- настройка размеров ---
     private const val TOWER_WIDTH = 80
-    private const val GOKU_TOWER_WIDTH = 175
-    private const val GOKU_TOWER_CHARGE_WIDTH = 130
+    private const val GOKU_TOWER_WIDTH = 160
+    private const val GOKU_TOWER_CHARGE_WIDTH = 120
 
 
     const val ENEMY_NORMAL_WIDTH = 55

@@ -12,7 +12,7 @@ enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: 
     SCOUT("Scout", 50, 250f, 10f, 20),
     ARTILLERY("Artillery", 150, 350f, 40f, 120),
     FROST("Frost", 200, 200f, 2f, 10),
-    GOKU("Goku", 5000, 550f, 5000f, 600)
+    GOKU("Goku", 5000, 550f, 3000f, 600)
 }
 // Враги
 enum class EnemyType(val speedMod: Float, val hpMod: Float, val rewardMod: Float) {

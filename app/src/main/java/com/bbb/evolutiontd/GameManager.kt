@@ -52,12 +52,12 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     // для боссов
     private fun getBossesForWave(wave: Int): List<EnemyType> {
         return when (wave) {
-            5 -> listOf(EnemyType.TANK) // волна 5 танк
-            10 -> listOf(EnemyType.BOSS) // волна 10 босс слизень
-            15 -> listOf(EnemyType.TANK, EnemyType.TANK, EnemyType.BOSS) // волна 15 2 танка и босс за ними
-            20 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS) // волна 20 3 босса
-            25 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU) // 25 3 босса и гоку
-            30 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU)
+            5 -> listOf(EnemyType.TANK, EnemyType.BOSS) // волна 5 танк
+            10 -> listOf(EnemyType.TANK, EnemyType.BOSS, EnemyType.BOSS ) // волна 10 босс слизень
+            15 -> listOf(EnemyType.TANK, EnemyType.TANK, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS) // волна 15 2 танка и босс за ними
+            20 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS) // волна 20 5 боссов
+            25 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU) // 25 4 босса и гоку
+            30 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS ,EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU)
             40 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
             50 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
             else -> emptyList()
@@ -251,7 +251,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     // Применение статов (ХП, Скорость) к врагу
     private fun createEnemy(type: EnemyType) {
         //хп врага базовое
-        val baseWaveHp = 30f * Math.pow(1.19, wave.toDouble()).toFloat()
+        val baseWaveHp = 30f * Math.pow(1.22, wave.toDouble()).toFloat()
 
         val finalHp = baseWaveHp * type.hpMod
 
