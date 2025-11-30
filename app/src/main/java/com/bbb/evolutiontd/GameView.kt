@@ -117,6 +117,8 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         backgroundRect.set(0, 0, width, height)
+        // подстраивается под телефон размеры для пути врага это
+        gameManager.setScreenSize(width, height)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {

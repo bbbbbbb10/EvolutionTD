@@ -11,7 +11,7 @@ enum class GameState {
     MENU, PLAYING, PAUSED, GAMEOVER
 }
 
-class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
+class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
 
     // --- СПИСКИ ИГРОВЫХ ОБЪЕКТОВ ---
     val enemies = CopyOnWriteArrayList<Enemy>()
@@ -37,18 +37,35 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     private val currentWaveBosses = LinkedList<EnemyType>()
 
     // Координаты пути
-    val path = listOf(
-        Point(0f, screenHeight * 0.15f),//первая точка
-        Point(screenWidth * 0.148f, screenHeight * 0.15f), //вторая
-        Point(screenWidth * 0.148f, screenHeight * 0.745f), // третья
-        Point(screenWidth * 0.345f, screenHeight * 0.745f), // четвертая
-        Point(screenWidth * 0.345f, screenHeight * 0.24f),
-        Point(screenWidth * 0.543f, screenHeight * 0.24f),
-        Point(screenWidth * 0.543f, screenHeight * 0.83f),
-        Point(screenWidth * 0.74f, screenHeight * 0.83f),
-        Point(screenWidth * 0.74f, screenHeight * 0.385f),
-        Point(screenWidth.toFloat(), screenHeight * 0.385f)
-    )
+    var path = ArrayList<Point>()
+
+    init {
+        // Считаем путь при создании
+        recalculatePath()
+    }
+    fun setScreenSize(w: Int, h: Int) {
+        this.screenWidth = w
+        this.screenHeight = h
+        recalculatePath()
+    }
+
+    // Твоя функция пересчета (ВСТАВЛЯТЬ СЮДА)
+    private fun recalculatePath() {
+        path.clear()
+
+        // Твои координаты (проценты)
+        path.add(Point(0f, screenHeight * 0.15f))
+        path.add(Point(screenWidth * 0.148f, screenHeight * 0.15f))
+        path.add(Point(screenWidth * 0.148f, screenHeight * 0.745f))
+        path.add(Point(screenWidth * 0.345f, screenHeight * 0.745f))
+        path.add(Point(screenWidth * 0.345f, screenHeight * 0.24f))
+        path.add(Point(screenWidth * 0.543f, screenHeight * 0.24f))
+        path.add(Point(screenWidth * 0.543f, screenHeight * 0.83f))
+        path.add(Point(screenWidth * 0.74f, screenHeight * 0.83f))
+        path.add(Point(screenWidth * 0.74f, screenHeight * 0.385f))
+        path.add(Point(screenWidth.toFloat(), screenHeight * 0.385f))
+    }
+
     // для боссов
     private fun getBossesForWave(wave: Int): List<EnemyType> {
         return when (wave) {
