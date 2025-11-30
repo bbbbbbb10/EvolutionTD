@@ -20,7 +20,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     val effects = CopyOnWriteArrayList<Effect>()
 
     // --- СОСТОЯНИЕ ИГРЫ ---
-    var money = 450
+    var money: Long = 450
     var lives = 20
     var wave = 0
     var state = GameState.MENU
@@ -31,93 +31,87 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     private var spawnTimer = 0
     private val spawnInterval = 30 // Задержка между врагами (30 кадров = 0.5 сек)
     var waveCooldown = 0
-    val waveCooldownMax = 200 // Задержка между волнами (200 кадров = 3сек примерно я хз)
+    val waveCooldownMax = 200 // Задержка между волнами (200 кадров = 3сек примерно )
 
     // Очередь для Боссов (они выходят в конце волны)
     private val currentWaveBosses = LinkedList<EnemyType>()
 
-    // Координаты пути (Если враги идут мимо дороги на картинке — меняй цифры здесь!)
+    // Координаты пути
     val path = listOf(
-        Point(0f, screenHeight * 0.15f),
-        Point(screenWidth * 0.15f, screenHeight * 0.15f),
-        Point(screenWidth * 0.15f, screenHeight * 0.75f),
-        Point(screenWidth * 0.35f, screenHeight * 0.75f),
-        Point(screenWidth * 0.35f, screenHeight * 0.25f),
-        Point(screenWidth * 0.55f, screenHeight * 0.25f),
-        Point(screenWidth * 0.55f, screenHeight * 0.85f),
-        Point(screenWidth * 0.75f, screenHeight * 0.85f),
-        Point(screenWidth * 0.75f, screenHeight * 0.40f),
-        Point(screenWidth.toFloat(), screenHeight * 0.40f)
+        Point(0f, screenHeight * 0.15f),//первая точка
+        Point(screenWidth * 0.148f, screenHeight * 0.15f), //вторая
+        Point(screenWidth * 0.148f, screenHeight * 0.745f), // третья
+        Point(screenWidth * 0.345f, screenHeight * 0.745f), // четвертая
+        Point(screenWidth * 0.345f, screenHeight * 0.24f),
+        Point(screenWidth * 0.543f, screenHeight * 0.24f),
+        Point(screenWidth * 0.543f, screenHeight * 0.83f),
+        Point(screenWidth * 0.74f, screenHeight * 0.83f),
+        Point(screenWidth * 0.74f, screenHeight * 0.385f),
+        Point(screenWidth.toFloat(), screenHeight * 0.385f)
     )
-
-    // ========================================================================
-    //  БЛОК НАСТРОЙКИ БАЛАНСА (РЕДАКТИРУЙ ЗДЕСЬ!)
-    // ========================================================================
-
-    /**
-     * 1. СЦЕНАРИИ БОССОВ
-     * Здесь ты решаешь, на какой волне кто выйдет в самом конце.
-     * Можно перечислять сколько угодно врагов.
-     */
+    // для боссов
     private fun getBossesForWave(wave: Int): List<EnemyType> {
         return when (wave) {
-            5 -> listOf(EnemyType.TANK) // Волна 5: Один Танк
-            10 -> listOf(EnemyType.BOSS) // Волна 10: Один Босс
-            15 -> listOf(EnemyType.TANK, EnemyType.TANK) // Волна 15: Два Танка
-            20 -> listOf(EnemyType.BOSS, EnemyType.GOKU) // Волна 20: Босс и Мега-Босс
-            30 -> listOf(EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
-            // Если волны нет в списке — боссов не будет
+            5 -> listOf(EnemyType.TANK) // волна 5 танк
+            10 -> listOf(EnemyType.BOSS) // волна 10 босс слизень
+            15 -> listOf(EnemyType.TANK, EnemyType.TANK, EnemyType.BOSS) // волна 15 2 танка и босс за ними
+            20 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS) // волна 20 3 босса
+            25 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU) // 25 3 босса и гоку
+            30 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU)
+            40 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
+            50 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
             else -> emptyList()
         }
     }
-
-    /**
-     * 2. ВЕСА ОБЫЧНЫХ ВРАГОВ (РАНДОМ)
-     * Здесь настраивается, кто спавнится в основной части волны.
-     * Цифра — это "шанс". Чем она больше по сравнению с другими, тем чаще враг.
-     * Например: Normal=90, Fast=10 -> В 90% случаев будет Обычный.
-     */
+    // основная часть волн
     private fun getRandomEnemyForWave(wave: Int): EnemyType {
         val pool = when{
-            // -- ЛЕГКО (1-2 волна) --
+            // 1-2 волна
             wave <= 2 -> mapOf(
                 EnemyType.NORMAL to 100,
             )
-            // -- РАЗГОН (3-8 волна) --
+            // 3-8 волна
             wave <= 8 -> mapOf(
                 EnemyType.NORMAL to 40,
                 EnemyType.FAST to 30,
                 EnemyType.DEMON to 30
             )
-            // -- СРЕДНЕ (9-19 волна) --
+            // 9-19 волна
             wave <= 19 -> mapOf(
                 EnemyType.DEMON to 40,
                 EnemyType.NORMAL to 30,
                 EnemyType.FAST to 10,
-                EnemyType.TANK to 20    // Появляются танки в толпе!
+                EnemyType.TANK to 20
             )
-            // -- ХАРДКОР (20+ волна) --
+            // c 20 по 39
+            wave <= 39 -> mapOf(
+                EnemyType.DEMON to 30,
+                EnemyType.NORMAL to 10,
+                EnemyType.FAST to 20,
+                EnemyType.TANK to 40
+            )
+            // 40 по 59
+            wave <= 59 -> mapOf(
+                EnemyType.DEMON to 20,
+                EnemyType.FAST to 20,
+                EnemyType.TANK to 60
+            )
+            // 60+ ВОЛНЫ
             else -> mapOf(
-                EnemyType.NORMAL to 20,
-                EnemyType.FAST to 10,
-                EnemyType.TANK to 40,   // Танков больше всего
-                EnemyType.DEMON to 30
+                EnemyType.TANK to 30,
+                EnemyType.GOKU to 20,
+                EnemyType.BOSS to 50
             )
         }
         return getWeightedRandom(pool)
     }
-
-    // ========================================================================
-    //  КОНЕЦ НАСТРОЕК (ДАЛЬШЕ ЛОГИКА ДВИЖКА)
-    // ========================================================================
-
     fun startGame() {
         enemies.clear()
         towers.clear()
         projectiles.clear()
         effects.clear()
 
-        money = 5000
+        money = 150
         lives = 20
         wave = 0
         waveCooldown = 0
@@ -161,13 +155,13 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     }
 
     private fun applyDamage(p: Projectile) {
-        // --- ГОКУ: ЯДЕРНЫЙ ВЗРЫВ ---
+        // --- GOKUUUUUUUUU KAMEHAMEHAAA ---
         if (p.type == TowerType.GOKU) {
             // Синий взрыв
             effects.add(Effect(p.x, p.y, EffectType.BLUE_EXPLOSION))
 
             // НАСТРОЙКИ ВЗРЫВА
-            val explosionRadius = 500f // Огромный радиус
+            val explosionRadius = 450f // Радиус гоку
 
             for (enemy in enemies) {
                 val dist = Math.hypot((enemy.x - p.x).toDouble(), (enemy.y - p.y).toDouble())
@@ -256,13 +250,13 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
 
     // Применение статов (ХП, Скорость) к врагу
     private fun createEnemy(type: EnemyType) {
-        // Базовое ХП растет на 30% (1.3) каждую волну.
-        // Если слишком сложно, поменяй 1.3 на 1.15 или 1.2
-        val baseWaveHp = 20f * Math.pow(1.3, wave.toDouble()).toFloat()
+        //хп врага базовое
+        val baseWaveHp = 30f * Math.pow(1.19, wave.toDouble()).toFloat()
 
         val finalHp = baseWaveHp * type.hpMod
-        val finalSpeed = 3.2f * type.speedMod
-        val finalReward = 10f * Math.pow(1.1, wave.toDouble()).toFloat() * type.rewardMod
+
+        val finalSpeed = 3.0f * type.speedMod
+        val finalReward = 15f * Math.pow(1.14, wave.toDouble()).toFloat() * type.rewardMod
 
         enemies.add(Enemy(path, finalHp, finalHp, finalSpeed, finalReward.toInt(), type))
     }
@@ -283,7 +277,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
         return EnemyType.NORMAL
     }
 
-    // --- ПРОВЕРКА МЕСТА ДЛЯ ПОСТРОЙКИ ---
+    // проверка места постройки
     fun isValidPlacement(x: Float, y: Float): Boolean {
         // Минимальное расстояние между центрами башен (Ширина башни ~110)
         val minDistanceX = 70f  // Можно ставить плотно сбоку

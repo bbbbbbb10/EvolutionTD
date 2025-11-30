@@ -252,7 +252,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
                 uiPaint.style = Paint.Style.FILL
                 uiPaint.color = Color.argb(180, 0, 200, 255) // Голубой
                 // Очень быстрый рост радиуса (* 20f)
-                val radius = 90f + (effect.age * 20f)
+                val radius = 80f + (effect.age * 18f)
                 canvas.drawCircle(effect.x, effect.y, radius, uiPaint)
 
                 uiPaint.style = Paint.Style.STROKE; uiPaint.strokeWidth=4f; uiPaint.color = Color.WHITE

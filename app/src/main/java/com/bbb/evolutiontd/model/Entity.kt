@@ -12,16 +12,16 @@ enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: 
     SCOUT("Scout", 50, 250f, 10f, 20),
     ARTILLERY("Artillery", 150, 350f, 40f, 120),
     FROST("Frost", 200, 200f, 2f, 10),
-    GOKU("Goku", 5000, 600f, 5000f, 600)
+    GOKU("Goku", 5000, 550f, 5000f, 600)
 }
 // Враги
 enum class EnemyType(val speedMod: Float, val hpMod: Float, val rewardMod: Float) {
     NORMAL(1.0f, 1.0f, 1.0f),
     FAST(1.8f, 0.8f, 1.5f),
-    DEMON(1.2f, 1.4f, 2f),
+    DEMON(1.1f, 1.4f, 2f),
     TANK(0.6f, 4.0f, 3.0f),
     BOSS(0.4f, 15.0f, 10.0f),
-    GOKU(0.8f, 30.0f, 15.0f)
+    GOKU(0.5f, 20.0f, 15.0f)
 }
 
 // Добавил BLUE_EXPLOSION для синего взрыва
@@ -169,18 +169,30 @@ class Tower(var x: Float, var y: Float, val type: TowerType) {
         }
     }
 
-    fun upgradeCost(): Int = (type.baseCost * Math.pow(1.5, level.toDouble())).toInt()
+    //цена апгрейда растет на 35 проц
+    fun upgradeCost(): Int = (type.baseCost * Math.pow(1.35, level.toDouble())).toInt()
     fun sellCost(): Int = (upgradeCost() / 2)
-    fun getNextDamage(): Float = damage * 1.2f
+    fun getNextDamage(): Float = damage * 1.25f
     fun getNextRange(): Float = range * 1.05f
     fun getFireRateSec(): String = String.format("%.1fs", cooldownMax / 60f)
     fun getNextFireRateSec(): String {
-        val nextCd = if(type == TowerType.FROST) (cooldownMax * 0.9).toInt() else cooldownMax
-        return String.format("%.1fs", nextCd / 60f)
+        var futureCooldown = cooldownMax
+
+        if (futureCooldown > 5) {
+            futureCooldown = (futureCooldown * 0.95).toInt()
+        }
+        return String.format("%.1fs", futureCooldown / 60f)
     }
 
+
     fun upgrade() {
-        level++; damage *= 1.2f; range *= 1.05f; if(type == TowerType.FROST) cooldownMax = (cooldownMax * 0.9).toInt()
+        level++
+        damage *= 1.25f
+        range *= 1.05f
+
+        if (cooldownMax > 10) {
+            cooldownMax = (cooldownMax * 0.95).toInt()
+        }
     }
 }
 
