@@ -1,7 +1,8 @@
 package com.bbb.evolutiontd.model
 
+import com.bbb.evolutiontd.SoundManager
 import com.bbb.evolutiontd.SpriteManager
-import kotlin.math.sin // Не забудь этот импорт!
+import kotlin.math.sin
 
 data class Point(var x: Float, var y: Float)
 
@@ -10,15 +11,21 @@ enum class TargetStrategy { FIRST, CLOSEST, STRONGEST, WEAKEST }
 enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: Float, val baseDmg: Float, val baseCooldown: Int) {
     SCOUT("Scout", 50, 250f, 10f, 20),
     ARTILLERY("Artillery", 150, 350f, 40f, 120),
-    FROST("Frost", 200, 200f, 2f, 10)
+    FROST("Frost", 200, 200f, 2f, 10),
+    GOKU("Goku", 5000, 600f, 5000f, 600)
 }
-
+// Враги
 enum class EnemyType(val speedMod: Float, val hpMod: Float, val rewardMod: Float) {
     NORMAL(1.0f, 1.0f, 1.0f),
-    FAST(1.8f, 0.6f, 1.5f),
+    FAST(1.8f, 0.8f, 1.5f),
+    DEMON(1.2f, 1.4f, 2f),
     TANK(0.6f, 4.0f, 3.0f),
-    BOSS(0.4f, 15.0f, 10.0f)
+    BOSS(0.4f, 15.0f, 10.0f),
+    GOKU(0.8f, 30.0f, 15.0f)
 }
+
+// Добавил BLUE_EXPLOSION для синего взрыва
+enum class EffectType { EXPLOSION, BLUE_EXPLOSION }
 
 class Effect(val x: Float, val y: Float, val type: EffectType) {
     var age = 0
@@ -26,7 +33,6 @@ class Effect(val x: Float, val y: Float, val type: EffectType) {
     var active = true
     fun update() { age++; if (age >= maxAge) active = false }
 }
-enum class EffectType { EXPLOSION }
 
 class Enemy(
     val path: List<Point>,
@@ -44,7 +50,6 @@ class Enemy(
     var freezeTimer = 0
     var isFrozen = false
 
-    // НОВОЕ: Таймер для анимации
     private var animTick = 0f
 
     fun update() {
@@ -56,8 +61,6 @@ class Enemy(
         }
         val currentSpeed = if (isFrozen) baseSpeed * 0.5f else baseSpeed
 
-        // НОВОЕ: Обновляем анимацию (быстрые качаются быстрее)
-        // Если заморожен - анимация тоже замедляется
         animTick += 0.15f * (currentSpeed / 4f)
 
         if (currentWaypointIndex >= path.size - 1) {
@@ -80,9 +83,7 @@ class Enemy(
         }
     }
 
-    // НОВОЕ: Получаем угол наклона (от -10 до +10 градусов)
     fun getSwayAngle(): Float {
-        // sin дает волну от -1 до 1. Умножаем на 10 градусов.
         return (sin(animTick.toDouble()) * 10.0).toFloat()
     }
 
@@ -94,16 +95,67 @@ class Enemy(
 }
 
 class Tower(var x: Float, var y: Float, val type: TowerType) {
-    var level = 1; var range = type.baseRange; var damage = type.baseDmg; var cooldownMax = type.baseCooldown
-    var cooldownCurrent = 0; var strategy = TargetStrategy.FIRST; var isSelected = false
+    var level = 1
+    var range = type.baseRange
+    var damage = type.baseDmg
+    var cooldownMax = type.baseCooldown
+    var cooldownCurrent = 0
+    var strategy = TargetStrategy.FIRST
+    var isSelected = false
+
+    // --- ЛОГИКА ГОКУ (Зарядка и Левитация) ---
+    var isCharging = false
+    var chargeTimer = 0
+    val chargeDuration = 170   // время накапливания заряда
+    private var floatTick = 0f  // Для левитации
 
     fun update(enemies: List<Enemy>, projectiles: MutableList<Projectile>) {
+        // Левитация работает всегда
+        floatTick += 0.05f
+
         if (cooldownCurrent > 0) cooldownCurrent--
-        val target = findTarget(enemies)
-        if (cooldownCurrent <= 0 && target != null) {
-            projectiles.add(Projectile(x, y, target, damage, type))
-            cooldownCurrent = cooldownMax
+
+        // Если заряжаемся
+        if (isCharging) {
+            chargeTimer++
+            // Если зарядились -> Стреляем
+            if (chargeTimer >= chargeDuration) {
+                val target = findTarget(enemies)
+                if (target != null) {
+                    projectiles.add(Projectile(x, y, target, damage, type))
+                    cooldownCurrent = cooldownMax
+                    isCharging = false
+                    chargeTimer = 0
+                } else {
+                    // Цель ушла
+                    isCharging = false
+                    chargeTimer = 0
+                }
+            }
+            return
         }
+
+        // Обычное состояние
+        if (cooldownCurrent <= 0) {
+            val target = findTarget(enemies)
+            if (target != null) {
+                if (type == TowerType.GOKU) {
+                    // Гоку сначала заряжается
+                    isCharging = true
+                    chargeTimer = 0
+                    SoundManager.playGokuCharge() // Звук!
+                } else {
+                    // Остальные стреляют сразу
+                    projectiles.add(Projectile(x, y, target, damage, type))
+                    cooldownCurrent = cooldownMax
+                }
+            }
+        }
+    }
+
+    // Метод для получения смещения (вверх-вниз)
+    fun getLevitationOffset(): Float {
+        return (sin(floatTick.toDouble()) * 10f).toFloat()
     }
 
     private fun findTarget(enemies: List<Enemy>): Enemy? {
@@ -117,7 +169,6 @@ class Tower(var x: Float, var y: Float, val type: TowerType) {
         }
     }
 
-    // ПРЕДСКАЗАНИЕ СТАТОВ
     fun upgradeCost(): Int = (type.baseCost * Math.pow(1.5, level.toDouble())).toInt()
     fun sellCost(): Int = (upgradeCost() / 2)
     fun getNextDamage(): Float = damage * 1.2f
@@ -134,13 +185,32 @@ class Tower(var x: Float, var y: Float, val type: TowerType) {
 }
 
 class Projectile(var x: Float, var y: Float, val target: Enemy, val damage: Float, val type: TowerType) {
-    val speed = 25f; var active = true; var angle: Float = 0f
+    // Настройка скорости: Гоку медленный, Артиллерия средняя, остальные быстрые
+    val speed = when(type) {
+        TowerType.GOKU -> 12f
+        TowerType.ARTILLERY -> 15f
+        else -> 25f
+    }
+
+    var active = true
+    var angle: Float = 0f
 
     fun update() {
         if (!target.active) { active = false; return }
-        val dx = target.x - x; val dy = target.y - y
+
+        val dx = target.x - x
+        val dy = target.y - y
         val dist = Math.hypot(dx.toDouble(), dy.toDouble()).toFloat()
+
         angle = Math.toDegrees(Math.atan2(dy.toDouble(), dx.toDouble())).toFloat()
-        if (dist <= speed) { x = target.x; y = target.y; active = false } else { x += (dx / dist) * speed; y += (dy / dist) * speed }
+
+        if (dist <= speed) {
+            x = target.x
+            y = target.y
+            active = false
+        } else {
+            x += (dx / dist) * speed
+            y += (dy / dist) * speed
+        }
     }
 }

@@ -264,7 +264,7 @@
                         android:id="@+id/btnBuyScout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Scout($50)"
+                        android:text="Scout(50$)"
                         android:fontFamily="@font/pixel_solid"
                         android:textSize="10dp"
                         android:paddingBottom="1dp"
@@ -273,7 +273,7 @@
                         android:id="@+id/btnBuyArtillery"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Artillery($150)"
+                        android:text="Artillery(150$)"
                         android:fontFamily="@font/pixel_solid"
                         android:textSize="9dp"
                         android:paddingBottom="1dp"
@@ -282,11 +282,20 @@
                         android:id="@+id/btnBuyFrost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Frost($200)"
+                        android:text="Frost(200$)"
                         android:fontFamily="@font/pixel_solid"
                         android:textSize="10dp"
                         android:paddingBottom="1dp"
                         android:backgroundTint="#BF2196F3"/>
+                    <Button
+                        android:id="@+id/btnBuyGoku"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="SECRET(5000$)"
+                        android:fontFamily="@font/pixel_solid"
+                        android:textSize="10dp"
+                        android:paddingBottom="1dp"
+                        android:backgroundTint="#BF2196"/>
                 </LinearLayout>
                 <!-- МЕНЮ АПГРЕЙДЫЫЫ -->
                 <LinearLayout

@@ -1,7 +1,6 @@
 package com.bbb.evolutiontd
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -57,6 +56,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnBuyScout: Button
     private lateinit var btnBuyArtillery: Button
     private lateinit var btnBuyFrost: Button
+    private lateinit var btnBuyGoku: Button // <--- НОВАЯ КНОПКА
 
     // УЛУЧШЕНИЯ
     private lateinit var txtTowerStats: TextView
@@ -71,17 +71,19 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Скрываем системные панели СРАЗУ при создании
+        // Полноэкранный режим
         hideSystemUI()
 
         setContentView(R.layout.activity_main)
 
+        // Инициализация ресурсов
         SpriteManager.init(this)
+        SoundManager.init(this) // <--- Инициализация звука
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
 
-        // Используем реальные размеры экрана (включая области под камерой и кнопками)
+        // Реальные размеры
         val realWidth = displayMetrics.widthPixels
         val realHeight = displayMetrics.heightPixels
 
@@ -101,7 +103,6 @@ class MainActivity : AppCompatActivity() {
         startUiUpdater()
     }
 
-    // 2. Гарантируем скрытие панелей, если фокус вернулся (например, закрыли шторку уведомлений)
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus) {
@@ -109,26 +110,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // --- ФУНКЦИЯ ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА ---
     private fun hideSystemUI() {
-        // Заставляем контент рисоваться под системными барами
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         val controller = WindowCompat.getInsetsController(window, window.decorView)
-        // Скрываем и навигацию (снизу), и статус бар (сверху)
         controller.hide(WindowInsetsCompat.Type.systemBars())
-        // Бары появятся, если свайпнуть от края, и потом снова исчезнут
         controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
-        // ВАЖНО ДЛЯ POCO / XIAOMI / SAMSUNG:
-        // Разрешаем рисовать в области выреза камеры (Notch)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val attrib = window.attributes
             attrib.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             window.attributes = attrib
         }
     }
-    // -----------------------------------------
 
     override fun onPause() {
         super.onPause()
@@ -179,6 +172,9 @@ class MainActivity : AppCompatActivity() {
         btnBuyScout = findViewById(R.id.btnBuyScout)
         btnBuyArtillery = findViewById(R.id.btnBuyArtillery)
         btnBuyFrost = findViewById(R.id.btnBuyFrost)
+
+        btnBuyGoku = findViewById(R.id.btnBuyGoku)
+
 
         txtTowerStats = findViewById(R.id.txtTowerStats)
         btnUpgrade = findViewById(R.id.btnUpgrade)
@@ -231,7 +227,6 @@ class MainActivity : AppCompatActivity() {
         btnResume.setOnClickListener {
             gameManager.state = GameState.PLAYING
             menuPause.visibility = View.GONE
-            // При возврате в игру снова скрываем UI на всякий случай
             hideSystemUI()
         }
 
@@ -296,6 +291,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.btnBuyScout -> TowerType.SCOUT
                 R.id.btnBuyArtillery -> TowerType.ARTILLERY
                 R.id.btnBuyFrost -> TowerType.FROST
+                R.id.btnBuyGoku -> TowerType.GOKU
                 else -> TowerType.SCOUT
             }
 
@@ -320,6 +316,7 @@ class MainActivity : AppCompatActivity() {
         btnBuyScout.setOnTouchListener(touchListener)
         btnBuyArtillery.setOnTouchListener(touchListener)
         btnBuyFrost.setOnTouchListener(touchListener)
+        btnBuyGoku.setOnTouchListener(touchListener)
 
         btnCloseShop.setOnClickListener {
             selectedTower?.isSelected = false
