@@ -8,20 +8,20 @@ data class Point(var x: Float, var y: Float)
 
 enum class TargetStrategy { FIRST, CLOSEST, STRONGEST, WEAKEST }
 
-enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: Float, val baseDmg: Float, val baseCooldown: Int) {
-    SCOUT("Scout", 50, 250f, 10f, 20),
-    ARTILLERY("Artillery", 150, 350f, 40f, 120),
-    FROST("Frost", 200, 200f, 2f, 10),
-    GOKU("Goku", 5000, 550f, 3000f, 600)
+enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: Float, val baseDmg: Float, val baseCooldown: Int, val maxLimit: Int) {
+    SCOUT("Archer", 50, 250f, 10f, 20, 10),
+    ARTILLERY("Artillery", 150, 350f, 40f, 120,10),
+    FROST("Frost", 200, 200f, 2f, 10,10),
+    GOKU("Goku", 5000, 550f, 3000f, 600,3)
 }
 // Враги
 enum class EnemyType(val speedMod: Float, val hpMod: Float, val rewardMod: Float) {
     NORMAL(1.0f, 1.0f, 1.0f),
-    FAST(1.8f, 0.8f, 1.5f),
-    DEMON(1.1f, 1.4f, 2f),
-    TANK(0.6f, 4.0f, 3.0f),
-    BOSS(0.4f, 15.0f, 10.0f),
-    GOKU(0.5f, 20.0f, 15.0f)
+    FAST(1.7f, 0.8f, 1.5f),
+    DEMON(1.1f, 1.6f, 2f),
+    TANK(0.6f, 7.0f, 3.0f),
+    BOSS(0.4f, 23.0f, 8.0f),
+    GOKU(0.5f, 28.0f, 14.0f)
 }
 
 // Добавил BLUE_EXPLOSION для синего взрыва

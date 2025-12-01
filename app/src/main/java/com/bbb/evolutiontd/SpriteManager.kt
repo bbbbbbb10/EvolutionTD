@@ -16,8 +16,8 @@ object SpriteManager {
     const val ENEMY_FAST_WIDTH = 50
     const val ENEMY_DEMON_WIDTH = 60
     const val ENEMY_TANK_WIDTH = 70
-    const val ENEMY_BOSS_WIDTH = 100
-    const val ENEMY_GOKU_WIDTH = 170
+    const val ENEMY_BOSS_WIDTH = 110
+    const val ENEMY_GOKU_WIDTH = 180
     // размеры снарядов
     private const val PROJ_SCOUT_WIDTH = 25
     private const val PROJ_ARTILLERY_WIDTH = 40

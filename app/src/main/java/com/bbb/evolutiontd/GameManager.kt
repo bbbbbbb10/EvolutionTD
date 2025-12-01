@@ -29,31 +29,35 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
     // --- НАСТРОЙКИ СПАВНА ---
     var enemiesToSpawn = 0
     private var spawnTimer = 0
-    private val spawnInterval = 30 // Задержка между врагами (30 кадров = 0.5 сек)
-    var waveCooldown = 0
-    val waveCooldownMax = 200 // Задержка между волнами (200 кадров = 3сек примерно )
 
-    // Очередь для Боссов (они выходят в конце волны)
+    // ТЕКУЩАЯ ЗАДЕРЖКА (Динамическая)
+    private var currentSpawnInterval = 30
+
+    // НАСТРОЙКИ ЗАДЕРЖЕК
+    private val spawnIntervalStandard = 30  // Обычная (0.5 сек)
+    private val spawnIntervalBosses = 110   // Боссы (1.8 сек)
+
+    var waveCooldown = 0
+    val waveCooldownMax = 200 // Задержка между волнами
+
+    // Очередь для Боссов
     private val currentWaveBosses = LinkedList<EnemyType>()
 
     // Координаты пути
     var path = ArrayList<Point>()
 
     init {
-        // Считаем путь при создании
         recalculatePath()
     }
+
     fun setScreenSize(w: Int, h: Int) {
         this.screenWidth = w
         this.screenHeight = h
         recalculatePath()
     }
 
-    // Твоя функция пересчета (ВСТАВЛЯТЬ СЮДА)
     private fun recalculatePath() {
         path.clear()
-
-        // Твои координаты (проценты)
         path.add(Point(0f, screenHeight * 0.15f))
         path.add(Point(screenWidth * 0.148f, screenHeight * 0.15f))
         path.add(Point(screenWidth * 0.148f, screenHeight * 0.745f))
@@ -66,63 +70,43 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         path.add(Point(screenWidth.toFloat(), screenHeight * 0.385f))
     }
 
-    // для боссов
+    // ========================================================================
+    //  БАЛАНС (БОССЫ)
+    // ========================================================================
     private fun getBossesForWave(wave: Int): List<EnemyType> {
         return when (wave) {
-            5 -> listOf(EnemyType.TANK, EnemyType.BOSS) // волна 5 танк
-            10 -> listOf(EnemyType.TANK, EnemyType.BOSS, EnemyType.BOSS ) // волна 10 босс слизень
-            15 -> listOf(EnemyType.TANK, EnemyType.TANK, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS) // волна 15 2 танка и босс за ними
-            20 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS) // волна 20 5 боссов
-            25 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU) // 25 4 босса и гоку
-            30 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS ,EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU)
-            40 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
-            50 -> listOf(EnemyType.BOSS, EnemyType.BOSS,EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
+            5 -> listOf(EnemyType.TANK, EnemyType.BOSS)
+            10 -> listOf(EnemyType.TANK, EnemyType.TANK, EnemyType.BOSS, EnemyType.BOSS)
+            15 -> listOf(EnemyType.TANK, EnemyType.TANK, EnemyType.TANK, EnemyType.TANK, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS)
+            20 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS)
+            25 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU)
+            30 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU)
+            40 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
+            50 -> listOf(EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.BOSS, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU, EnemyType.GOKU)
             else -> emptyList()
         }
     }
-    // основная часть волн
+
+    // ========================================================================
+    //  БАЛАНС (ОБЫЧНЫЕ)
+    // ========================================================================
     private fun getRandomEnemyForWave(wave: Int): EnemyType {
         val pool = when{
-            // 1-2 волна
-            wave <= 2 -> mapOf(
-                EnemyType.NORMAL to 100,
-            )
-            // 3-8 волна
-            wave <= 8 -> mapOf(
-                EnemyType.NORMAL to 40,
-                EnemyType.FAST to 30,
-                EnemyType.DEMON to 30
-            )
-            // 9-19 волна
-            wave <= 19 -> mapOf(
-                EnemyType.DEMON to 40,
-                EnemyType.NORMAL to 30,
-                EnemyType.FAST to 10,
-                EnemyType.TANK to 20
-            )
-            // c 20 по 39
-            wave <= 39 -> mapOf(
-                EnemyType.DEMON to 30,
-                EnemyType.NORMAL to 10,
-                EnemyType.FAST to 20,
-                EnemyType.TANK to 40
-            )
-            // 40 по 59
-            wave <= 59 -> mapOf(
-                EnemyType.DEMON to 20,
-                EnemyType.FAST to 20,
-                EnemyType.TANK to 60
-            )
-            // 60+ ВОЛНЫ
-            else -> mapOf(
-                EnemyType.TANK to 30,
-                EnemyType.GOKU to 20,
-                EnemyType.BOSS to 50
-            )
+            wave <= 2 -> mapOf(EnemyType.NORMAL to 100)
+            wave <= 9 -> mapOf(EnemyType.NORMAL to 30, EnemyType.FAST to 40, EnemyType.DEMON to 30)
+            wave <= 19 -> mapOf(EnemyType.DEMON to 40, EnemyType.NORMAL to 40, EnemyType.FAST to 20)
+            wave <= 39 -> mapOf(EnemyType.DEMON to 30, EnemyType.NORMAL to 10, EnemyType.FAST to 20, EnemyType.TANK to 40)
+            wave <= 59 -> mapOf(EnemyType.DEMON to 20, EnemyType.FAST to 20, EnemyType.TANK to 60)
+            else -> mapOf(EnemyType.TANK to 30, EnemyType.GOKU to 20, EnemyType.BOSS to 50)
         }
         return getWeightedRandom(pool)
     }
+
+    // --- ЗАПУСК НОВОЙ ИГРЫ ---
     fun startGame() {
+        // !!! ОЧИЩАЕМ СТАРОЕ СОХРАНЕНИЕ !!!
+        GameSaveManager.clearSave()
+
         enemies.clear()
         towers.clear()
         projectiles.clear()
@@ -138,6 +122,30 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         state = GameState.PLAYING
     }
 
+    // --- ПРОДОЛЖИТЬ ИГРУ (ИЗ СОХРАНЕНИЯ) ---
+    fun continueGame(data: SavedGameData) {
+        enemies.clear(); towers.clear(); projectiles.clear(); effects.clear()
+
+        money = data.money
+        lives = data.lives
+        wave = data.wave
+
+        for (tData in data.towers) {
+            val newTower = Tower(tData.x, tData.y, tData.type)
+            for (i in 1 until tData.level) {
+                newTower.upgrade()
+            }
+            towers.add(newTower)
+        }
+
+        waveCooldown = 0
+        state = GameState.PLAYING
+
+        // Откатываем волну на 1 назад, чтобы запустить текущую с начала
+        wave--
+        startNextWave()
+    }
+
     fun update() {
         if (state != GameState.PLAYING) return
         repeat(gameSpeed) { updateGameLogic() }
@@ -145,22 +153,16 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
 
     private fun updateGameLogic() {
         handleWaveLogic()
-
-        // Обновление сущностей
         towers.forEach { it.update(enemies, projectiles) }
-
         effects.forEach { it.update() }
         effects.removeAll { !it.active }
-
         projectiles.forEach { p ->
             p.update()
-            // Проверка попадания (дистанция < 40)
             if (!p.active && Math.hypot((p.x - p.target.x).toDouble(), (p.y - p.target.y).toDouble()) < 40) {
                 applyDamage(p)
             }
         }
         projectiles.removeAll { !it.active }
-
         enemies.forEach { enemy ->
             enemy.update()
             if (!enemy.active && enemy.hp > 0) {
@@ -172,34 +174,23 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
     }
 
     private fun applyDamage(p: Projectile) {
-        // --- GOKUUUUUUUUU KAMEHAMEHAAA ---
         if (p.type == TowerType.GOKU) {
-            // Синий взрыв
             effects.add(Effect(p.x, p.y, EffectType.BLUE_EXPLOSION))
-
-            // НАСТРОЙКИ ВЗРЫВА
-            val explosionRadius = 450f // Радиус гоку
-
+            val explosionRadius = 450f
             for (enemy in enemies) {
-                val dist = Math.hypot((enemy.x - p.x).toDouble(), (enemy.y - p.y).toDouble())
-                if (dist <= explosionRadius) {
+                if (Math.hypot((enemy.x - p.x).toDouble(), (enemy.y - p.y).toDouble()) <= explosionRadius) {
                     if (enemy.takeDamage(p.damage)) killEnemy(enemy)
                 }
             }
-        }
-        // --- АРТИЛЛЕРИЯ ---
-        else if (p.type == TowerType.ARTILLERY) {
+        } else if (p.type == TowerType.ARTILLERY) {
             effects.add(Effect(p.x, p.y, EffectType.EXPLOSION))
             val splashRadius = 150f
             for (enemy in enemies) {
-                val dist = Math.hypot((enemy.x - p.x).toDouble(), (enemy.y - p.y).toDouble())
-                if (dist <= splashRadius) {
+                if (Math.hypot((enemy.x - p.x).toDouble(), (enemy.y - p.y).toDouble()) <= splashRadius) {
                     if (enemy.takeDamage(p.damage)) killEnemy(enemy)
                 }
             }
-        }
-        // --- ОБЫЧНЫЕ ---
-        else {
+        } else {
             if (p.type == TowerType.FROST) p.target.freezeTimer = 120
             if (p.target.takeDamage(p.damage)) killEnemy(p.target)
         }
@@ -218,119 +209,108 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
             if (waveCooldown >= waveCooldownMax) startNextWave()
         } else if (enemiesToSpawn > 0) {
             spawnTimer++
-            if (spawnTimer >= spawnInterval) {
+            // Используем динамический интервал
+            if (spawnTimer >= currentSpawnInterval) {
                 spawnEnemy()
                 spawnTimer = 0
             }
         }
     }
 
-    // --- ЗАПУСК НОВОЙ ВОЛНЫ ---
     fun startNextWave() {
         wave++
 
-        // 1. Получаем список боссов для этой волны и кладем в очередь
+        // --- СОХРАНЕНИЕ ---
+        FirebaseHelper.saveScore(wave)
+        GameSaveManager.saveGame(wave, money, lives, towers)
+        // ------------------
+
         currentWaveBosses.clear()
         currentWaveBosses.addAll(getBossesForWave(wave))
-
-        // 2. Рассчитываем количество случайных врагов (обычного "мяса")
-        // Формула: 5 + (3 за каждую волну). Можно менять!
-        val randomEnemyCount = 5 + (wave * 3)
-
-        // 3. Общее число врагов = случайные + боссы
+        val randomEnemyCount = 8 + (wave * 2)
         enemiesToSpawn = randomEnemyCount + currentWaveBosses.size
-
         waveCooldown = 0
     }
 
     fun canSkipWave(): Boolean = enemiesToSpawn == 0 && (enemies.size <= 5 || waveCooldown > 0)
     fun skipWave() { if (canSkipWave()) startNextWave() }
 
-    // --- СОЗДАНИЕ ВРАГА ---
     private fun spawnEnemy() {
         enemiesToSpawn--
-
         val typeToSpawn: EnemyType
-
-        // Логика очереди: Боссы выходят последними
-        // Если оставшихся врагов меньше или равно, чем боссов в очереди -> достаем босса
         if (currentWaveBosses.isNotEmpty() && enemiesToSpawn < currentWaveBosses.size) {
-            // .poll() достает первого из очереди и удаляет его оттуда
             typeToSpawn = currentWaveBosses.poll() ?: EnemyType.BOSS
         } else {
-            // Иначе берем случайного из настроек волны
             typeToSpawn = getRandomEnemyForWave(wave)
         }
-
         createEnemy(typeToSpawn)
+
+        // --- УСТАНОВКА ЗАДЕРЖКИ ПЕРЕД СЛЕДУЮЩИМ ---
+        currentSpawnInterval = when(typeToSpawn) {
+            EnemyType.BOSS, EnemyType.GOKU -> spawnIntervalBosses // Большая задержка
+            else -> spawnIntervalStandard // Обычная задержка
+        }
     }
 
-    // Применение статов (ХП, Скорость) к врагу
     private fun createEnemy(type: EnemyType) {
-        //хп врага базовое
-        val baseWaveHp = 30f * Math.pow(1.22, wave.toDouble()).toFloat()
-
+        // расчет хп - скорость - награда за врага . На текущей волне
+        val baseWaveHp = 30f * Math.pow(1.25, wave.toDouble()).toFloat()
         val finalHp = baseWaveHp * type.hpMod
-
         val finalSpeed = 3.0f * type.speedMod
-        val finalReward = 15f * Math.pow(1.14, wave.toDouble()).toFloat() * type.rewardMod
+        val finalReward = 15f * Math.pow(1.1, wave.toDouble()).toFloat() * type.rewardMod
 
         enemies.add(Enemy(path, finalHp, finalHp, finalSpeed, finalReward.toInt(), type))
     }
 
-    // --- МАТЕМАТИКА ВЕРОЯТНОСТЕЙ ---
     private fun getWeightedRandom(weights: Map<EnemyType, Int>): EnemyType {
         val totalWeight = weights.values.sum()
-        if (totalWeight == 0) return EnemyType.NORMAL // Защита от ошибок
-
+        if (totalWeight == 0) return EnemyType.NORMAL
         var randomValue = (Math.random() * totalWeight).toInt()
-
         for ((enemy, weight) in weights) {
             randomValue -= weight
-            if (randomValue < 0) {
-                return enemy
-            }
+            if (randomValue < 0) return enemy
         }
         return EnemyType.NORMAL
     }
 
-    // проверка места постройки
     fun isValidPlacement(x: Float, y: Float): Boolean {
-        // Минимальное расстояние между центрами башен (Ширина башни ~110)
-        val minDistanceX = 70f  // Можно ставить плотно сбоку
-        val minDistanceY = 100f // Но нельзя плотно сверху/снизу
-
-        val pathWidth = 60f // Запас от дороги
-
-        // 1. Проверяем другие башни (Прямоугольная проверка)
+        val minDistanceX = 70f; val minDistanceY = 100f; val pathWidth = 60f
         for (t in towers) {
-            val dx = abs(t.x - x)
-            val dy = abs(t.y - y)
+            val dx = abs(t.x - x); val dy = abs(t.y - y)
             if (dx < minDistanceX && dy < minDistanceY) return false
         }
-
-        // 2. Проверяем дорогу
         for (i in 0 until path.size - 1) {
-            val p1 = path[i]
-            val p2 = path[i+1]
+            val p1 = path[i]; val p2 = path[i+1]
             if (distToSegment(x, y, p1.x, p1.y, p2.x, p2.y) < pathWidth) return false
         }
         return true
     }
 
-    // Математика расстояния до отрезка
     private fun distToSegment(px: Float, py: Float, x1: Float, y1: Float, x2: Float, y2: Float): Float {
         val l2 = (x1-x2)*(x1-x2) + (y1-y2)*(y1-y2)
         if (l2 == 0f) return Math.hypot((px-x1).toDouble(), (py-y1).toDouble()).toFloat()
         var t = ((px-x1)*(x2-x1) + (py-y1)*(y2-y1)) / l2
         t = max(0f, min(1f, t))
-        val projX = x1 + t * (x2 - x1)
-        val projY = y1 + t * (y2 - y1)
+        val projX = x1 + t * (x2 - x1); val projY = y1 + t * (y2 - y1)
         return Math.hypot((px-projX).toDouble(), (py-projY).toDouble()).toFloat()
     }
 
+    fun getTowerCount(type: TowerType): Int {
+        var count = 0
+        for (t in towers) {
+            if (t.type == type) count++
+        }
+        return count
+    }
+
     fun buyTower(x: Float, y: Float, type: TowerType): Boolean {
-        if (money >= type.baseCost && isValidPlacement(x, y)) {
+        // Проверяем:
+        // 1. Хватает ли денег
+        // 2. Не превышен ли лимит
+        // 3. Можно ли тут строить
+
+        if (money >= type.baseCost && getTowerCount(type) < type.maxLimit && isValidPlacement(x, y))
+        {
             money -= type.baseCost
             towers.add(Tower(x, y, type))
             return true
