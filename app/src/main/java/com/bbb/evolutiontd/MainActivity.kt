@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnCreator).setOnClickListener {
-            Toast.makeText(this, "Made by: buwu", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Made by buwu", Toast.LENGTH_LONG).show()
         }
 
         btnLeaderboard.setOnClickListener {
@@ -329,14 +329,13 @@ class MainActivity : AppCompatActivity() {
                     val success = gameView.finishDrag()
 
                     if (success) {
-                        // Успех
-                        // Toast.makeText(this, "Башня построена!", Toast.LENGTH_SHORT).show() // Можно убрать, чтобы не спамило
+                        // Toast.makeText(this, "Башня построена!", Toast.LENGTH_SHORT).show()
                     } else {
                         // Если не построилось - проверяем причины и пишем игроку
                         if (gameManager.money < type.baseCost) {
                             Toast.makeText(this, "Need $${type.baseCost}!", Toast.LENGTH_SHORT).show()
                         } else if (gameManager.getTowerCount(type) >= type.maxLimit) {
-                            // НОВОЕ: Сообщение о лимите
+                            // Сообщение о лимите
                             Toast.makeText(this, "Max limit reached (${type.maxLimit})!", Toast.LENGTH_SHORT).show()
                         }
                     }

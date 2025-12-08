@@ -18,10 +18,10 @@ enum class TowerType(val displayName: String, val baseCost: Int, val baseRange: 
 enum class EnemyType(val speedMod: Float, val hpMod: Float, val rewardMod: Float) {
     NORMAL(1.0f, 1.0f, 1.0f),
     FAST(1.7f, 0.8f, 1.5f),
-    DEMON(1.1f, 1.6f, 2f),
-    TANK(0.6f, 7.0f, 3.0f),
-    BOSS(0.4f, 23.0f, 8.0f),
-    GOKU(0.5f, 28.0f, 14.0f)
+    DEMON(1.1f, 1.5f, 2f),
+    TANK(0.6f, 6.0f, 3.0f),
+    BOSS(0.4f, 21.0f, 8.0f),
+    GOKU(0.5f, 26.0f, 14.0f)
 }
 
 // Добавил BLUE_EXPLOSION для синего взрыва

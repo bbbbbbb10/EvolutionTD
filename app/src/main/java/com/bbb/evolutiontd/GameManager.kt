@@ -13,27 +13,27 @@ enum class GameState {
 
 class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
 
-    // --- СПИСКИ ИГРОВЫХ ОБЪЕКТОВ ---
+    // Список игровых обьектов
     val enemies = CopyOnWriteArrayList<Enemy>()
     val towers = CopyOnWriteArrayList<Tower>()
     val projectiles = CopyOnWriteArrayList<Projectile>()
     val effects = CopyOnWriteArrayList<Effect>()
 
-    // --- СОСТОЯНИЕ ИГРЫ ---
+    // состояние игры
     var money: Long = 450
     var lives = 20
     var wave = 0
     var state = GameState.MENU
     var gameSpeed = 1
 
-    // --- НАСТРОЙКИ СПАВНА ---
+    // настройка спавна
     var enemiesToSpawn = 0
     private var spawnTimer = 0
 
-    // ТЕКУЩАЯ ЗАДЕРЖКА (Динамическая)
+    // текущая задержка - динамическая
     private var currentSpawnInterval = 30
 
-    // НАСТРОЙКИ ЗАДЕРЖЕК
+    // интервал спавна врагов на волнах
     private val spawnIntervalStandard = 30  // Обычная (0.5 сек)
     private val spawnIntervalBosses = 110   // Боссы (1.8 сек)
 
@@ -55,7 +55,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         this.screenHeight = h
         recalculatePath()
     }
-
+    //путь по которому идут враги (подстраивается под разные разрешения)
     private fun recalculatePath() {
         path.clear()
         path.add(Point(0f, screenHeight * 0.15f))
@@ -69,10 +69,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         path.add(Point(screenWidth * 0.74f, screenHeight * 0.385f))
         path.add(Point(screenWidth.toFloat(), screenHeight * 0.385f))
     }
-
-    // ========================================================================
-    //  БАЛАНС (БОССЫ)
-    // ========================================================================
+    // боссы на волнах в порядке их выхода на path
     private fun getBossesForWave(wave: Int): List<EnemyType> {
         return when (wave) {
             5 -> listOf(EnemyType.TANK, EnemyType.BOSS)
@@ -86,10 +83,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
             else -> emptyList()
         }
     }
-
-    // ========================================================================
-    //  БАЛАНС (ОБЫЧНЫЕ)
-    // ========================================================================
+    // враги на волны и их шансы
     private fun getRandomEnemyForWave(wave: Int): EnemyType {
         val pool = when{
             wave <= 2 -> mapOf(EnemyType.NORMAL to 100)
@@ -102,9 +96,9 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         return getWeightedRandom(pool)
     }
 
-    // --- ЗАПУСК НОВОЙ ИГРЫ ---
+    // запуск новой игры
     fun startGame() {
-        // !!! ОЧИЩАЕМ СТАРОЕ СОХРАНЕНИЕ !!!
+        // при старте игры отчищаем старое сохранение
         GameSaveManager.clearSave()
 
         enemies.clear()
@@ -122,7 +116,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         state = GameState.PLAYING
     }
 
-    // --- ПРОДОЛЖИТЬ ИГРУ (ИЗ СОХРАНЕНИЯ) ---
+    // продолжить игру из сохранения
     fun continueGame(data: SavedGameData) {
         enemies.clear(); towers.clear(); projectiles.clear(); effects.clear()
 
@@ -141,7 +135,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         waveCooldown = 0
         state = GameState.PLAYING
 
-        // Откатываем волну на 1 назад, чтобы запустить текущую с начала
+        // Откатываем волну на 1 назад чтобы запустить текущую с начала
         wave--
         startNextWave()
     }
@@ -220,7 +214,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
     fun startNextWave() {
         wave++
 
-        // --- СОХРАНЕНИЕ ---
+        // --- сохранение ----
         FirebaseHelper.saveScore(wave)
         GameSaveManager.saveGame(wave, money, lives, towers)
         // ------------------
@@ -245,7 +239,7 @@ class GameManager(private var screenWidth: Int, private var screenHeight: Int) {
         }
         createEnemy(typeToSpawn)
 
-        // --- УСТАНОВКА ЗАДЕРЖКИ ПЕРЕД СЛЕДУЮЩИМ ---
+        // задержка перед следующим врагом
         currentSpawnInterval = when(typeToSpawn) {
             EnemyType.BOSS, EnemyType.GOKU -> spawnIntervalBosses // Большая задержка
             else -> spawnIntervalStandard // Обычная задержка
