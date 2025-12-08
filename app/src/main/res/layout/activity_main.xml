@@ -40,7 +40,19 @@
                 android:shadowDy="10"
                 android:shadowRadius="10"
                 android:layout_marginBottom="5dp" />
-
+            <Button
+                android:id="@+id/btnContinue"
+                android:layout_width="220dp"
+                android:layout_height="65dp"
+                android:text="CONTINUE"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="#FFF"
+                android:backgroundTint="#FF9800"
+                android:visibility="gone"
+                android:paddingBottom="1dp"
+                android:fontFamily="@font/pixel_solid"
+                android:layout_marginBottom="1dp"/>
             <Button
                 android:id="@+id/btnEndlessMode"
                 android:layout_width="200dp"
@@ -69,21 +81,8 @@
                 />
 
             <Button
-                android:id="@+id/btnExitGame"
-                android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:text="QUIT"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                android:textColor="#FFF"
-                android:backgroundTint="#F44336"
-                android:layout_marginBottom="1dp"
-                android:paddingBottom="1dp"
-                android:fontFamily="@font/pixel_solid" />
-
-            <Button
                 android:id="@+id/btnLeaderboard"
-                android:layout_width="100dp"
+                android:layout_width="110dp"
                 android:layout_height="60dp"
                 android:text="🏆"
                 android:textSize="28sp"
@@ -264,7 +263,7 @@
                         android:id="@+id/btnBuyScout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Scout($50)"
+                        android:text="Archer(50$)"
                         android:fontFamily="@font/pixel_solid"
                         android:textSize="10dp"
                         android:paddingBottom="1dp"
@@ -273,7 +272,7 @@
                         android:id="@+id/btnBuyArtillery"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Artillery($150)"
+                        android:text="Artillery(150$)"
                         android:fontFamily="@font/pixel_solid"
                         android:textSize="9dp"
                         android:paddingBottom="1dp"
@@ -282,11 +281,20 @@
                         android:id="@+id/btnBuyFrost"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Frost($200)"
+                        android:text="Frost(200$)"
                         android:fontFamily="@font/pixel_solid"
                         android:textSize="10dp"
                         android:paddingBottom="1dp"
                         android:backgroundTint="#BF2196F3"/>
+                    <Button
+                        android:id="@+id/btnBuyGoku"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="SECRET(5000$)"
+                        android:fontFamily="@font/pixel_solid"
+                        android:textSize="10dp"
+                        android:paddingBottom="1dp"
+                        android:backgroundTint="#BF2196"/>
                 </LinearLayout>
                 <!-- МЕНЮ АПГРЕЙДЫЫЫ -->
                 <LinearLayout

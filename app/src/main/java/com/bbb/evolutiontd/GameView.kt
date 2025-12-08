@@ -15,17 +15,20 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
     private var gameLoop: GameLoop? = null
     var onTowerSelected: ((Tower?) -> Unit)? = null
 
+    // Кисть для СПРАЙТОВ (без сглаживания)
     private val paint = Paint().apply {
         isAntiAlias = false
         isFilterBitmap = false
         isDither = false
     }
 
+    // Кисть для UI (сглаживание включено)
     private val uiPaint = Paint().apply {
         isAntiAlias = true
         style = Paint.Style.STROKE
     }
 
+    // Текст уровня (Системный шрифт)
     private val textPaint = Paint().apply {
         color = Color.WHITE
         textSize = 30f
@@ -44,6 +47,7 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         strokeWidth = 4f
     }
 
+    // Текст ХП Врагов
     private val hpTextPaint = Paint().apply {
         color = Color.WHITE
         textSize = 24f
@@ -62,11 +66,14 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         strokeWidth = 3f
     }
 
+    // ФИЛЬТРЫ
     private val frozenFilter = LightingColorFilter(0xFF8888FF.toInt(), 0x00000033)
+    // Красный фильтр для выделения
     private val selectedFilter = LightingColorFilter(0xFFFF8888.toInt(), 0x440000)
 
     private val backgroundRect = Rect()
 
+    // Drag state
     var isDragging = false
     var dragTowerType: TowerType? = null
     var dragX = 0f
@@ -110,6 +117,8 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
 
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         backgroundRect.set(0, 0, width, height)
+        // подстраивается под телефон размеры для пути врага это
+        gameManager.setScreenSize(width, height)
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
@@ -124,29 +133,48 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
         super.draw(canvas)
         if (canvas == null) return
 
+        // 1. ФОН
         canvas.drawBitmap(SpriteManager.gameBackground, null, backgroundRect, null)
 
-        // --- БАШНИ ---
+        // 2. БАШНИ
         for (tower in gameManager.towers) {
+            // Выбор спрайта
             val bitmap = when(tower.type) {
                 TowerType.SCOUT -> SpriteManager.towerScout
                 TowerType.ARTILLERY -> SpriteManager.towerArtillery
                 TowerType.FROST -> SpriteManager.towerFrost
+                // Гоку меняет спрайт при зарядке
+                TowerType.GOKU -> if (tower.isCharging) SpriteManager.towerGokuCharge else SpriteManager.towerGokuIdle
             }
 
             canvas.save()
-            canvas.translate(tower.x, tower.y)
 
-            if (tower.isSelected) {
-                paint.colorFilter = selectedFilter
-            } else {
-                paint.colorFilter = null
+            // --- АНИМАЦИЯ БАШНИ ---
+            var drawX = tower.x
+            var drawY = tower.y
+
+            if (tower.type == TowerType.GOKU) {
+                if (tower.isCharging) {
+                    // Дрожание при атаке
+                    val shake = 5f
+                    drawX += (Math.random().toFloat() - 0.5f) * shake
+                    drawY += (Math.random().toFloat() - 0.5f) * shake
+                } else {
+                    // Левитация в покое
+                    drawY += tower.getLevitationOffset()
+                }
             }
+
+            canvas.translate(drawX, drawY)
+
+            // Подсветка
+            if (tower.isSelected) paint.colorFilter = selectedFilter else paint.colorFilter = null
 
             canvas.drawBitmap(bitmap, -bitmap.width / 2f, -bitmap.height / 2f, paint)
             paint.colorFilter = null
             canvas.restore()
 
+            // Текст уровня
             val levelText = "Lvl ${tower.level}"
             val textY = tower.y + bitmap.height/2 - 10f
             canvas.drawText(levelText, tower.x, textY, textStrokePaint)
@@ -157,49 +185,50 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             }
         }
 
-        // --- ВРАГИ (С АНИМАЦИЕЙ КАЧАНИЯ) ---
+        // 3. ВРАГИ
         for (enemy in gameManager.enemies) {
             val bitmap = when (enemy.type) {
                 EnemyType.BOSS -> SpriteManager.enemyBoss
                 EnemyType.TANK -> SpriteManager.enemyTank
                 EnemyType.FAST -> SpriteManager.enemyFast
                 EnemyType.NORMAL -> SpriteManager.enemyNormal
+                EnemyType.DEMON -> SpriteManager.enemyDemon
+                EnemyType.GOKU -> SpriteManager.gokuBlack
             }
 
             canvas.save()
             canvas.translate(enemy.x, enemy.y)
 
-            // НОВОЕ: Вращаем монстра
+            // Качание врага
             canvas.rotate(enemy.getSwayAngle())
 
             if (enemy.isFrozen) paint.colorFilter = frozenFilter else paint.colorFilter = null
-            canvas.drawBitmap(bitmap, -bitmap.width / 2f, -bitmap.height / 2f, paint)
-            paint.colorFilter = null
 
+            canvas.drawBitmap(bitmap, -bitmap.width / 2f, -bitmap.height / 2f, paint)
+
+            paint.colorFilter = null
             canvas.restore()
 
-            // Рисуем HP (оно не крутится, так как после restore)
+            // HP Bar
             val hpYOffset = (bitmap.height / 2f) + 10f
             val hpWidth = bitmap.width.toFloat()
+            paint.color = Color.RED; canvas.drawRect(enemy.x - hpWidth/2, enemy.y - hpYOffset - 10, enemy.x + hpWidth/2, enemy.y - hpYOffset, paint)
+            paint.color = Color.GREEN; val hpPercent = enemy.hp / enemy.maxHp; canvas.drawRect(enemy.x - hpWidth/2, enemy.y - hpYOffset - 10, (enemy.x - hpWidth/2) + (hpWidth * hpPercent), enemy.y - hpYOffset, paint)
 
-            paint.color = Color.RED
-            canvas.drawRect(enemy.x - hpWidth/2, enemy.y - hpYOffset - 10, enemy.x + hpWidth/2, enemy.y - hpYOffset, paint)
-            paint.color = Color.GREEN
-            val hpPercent = enemy.hp / enemy.maxHp
-            canvas.drawRect(enemy.x - hpWidth/2, enemy.y - hpYOffset - 10, (enemy.x - hpWidth/2) + (hpWidth * hpPercent), enemy.y - hpYOffset, paint)
-
+            // Текст ХП
             val hpText = "${enemy.hp.toInt()}/${enemy.maxHp.toInt()}"
-            val textY = enemy.y - hpYOffset - 20f
-            canvas.drawText(hpText, enemy.x, textY, hpStrokePaint)
-            canvas.drawText(hpText, enemy.x, textY, hpTextPaint)
+            val textY2 = enemy.y - hpYOffset - 20f
+            canvas.drawText(hpText, enemy.x, textY2, hpStrokePaint)
+            canvas.drawText(hpText, enemy.x, textY2, hpTextPaint)
         }
 
-        // --- СНАРЯДЫ ---
+        // 4. СНАРЯДЫ
         for (p in gameManager.projectiles) {
             val projBitmap = when (p.type) {
                 TowerType.SCOUT -> SpriteManager.projScout
                 TowerType.ARTILLERY -> SpriteManager.projArtillery
                 TowerType.FROST -> SpriteManager.projFrost
+                TowerType.GOKU -> SpriteManager.projGoku // Шар Гоку
             }
             canvas.save()
             canvas.translate(p.x, p.y)
@@ -208,28 +237,39 @@ class GameView(context: Context, private val gameManager: GameManager) : Surface
             canvas.restore()
         }
 
-        // --- ЭФФЕКТЫ ---
+        // 5. ЭФФЕКТЫ
         for (effect in gameManager.effects) {
+            // Обычный взрыв (оранжевый)
             if (effect.type == EffectType.EXPLOSION) {
                 uiPaint.style = Paint.Style.FILL
                 uiPaint.color = Color.argb(150, 255, 100, 0)
                 val radius = 20f + (effect.age * 5f)
                 canvas.drawCircle(effect.x, effect.y, radius, uiPaint)
 
-                uiPaint.style = Paint.Style.STROKE
-                uiPaint.strokeWidth = 2f
-                uiPaint.color = Color.WHITE
+                uiPaint.style = Paint.Style.STROKE; uiPaint.strokeWidth=2f; uiPaint.color = Color.WHITE
                 canvas.drawCircle(effect.x, effect.y, radius * 0.7f, uiPaint)
+            }
+            // Синий взрыв (Гоку)
+            else if (effect.type == EffectType.BLUE_EXPLOSION) {
+                uiPaint.style = Paint.Style.FILL
+                uiPaint.color = Color.argb(180, 0, 200, 255) // Голубой
+                // Очень быстрый рост радиуса (* 16f)
+                val radius = 80f + (effect.age * 16f)
+                canvas.drawCircle(effect.x, effect.y, radius, uiPaint)
+
+                uiPaint.style = Paint.Style.STROKE; uiPaint.strokeWidth=4f; uiPaint.color = Color.WHITE
+                canvas.drawCircle(effect.x, effect.y, radius, uiPaint)
             }
         }
 
-        // --- DRAG PREVIEW ---
+        // 6. Drag Preview
         if (isDragging && dragTowerType != null) {
             val type = dragTowerType!!
             val bitmap = when(type) {
                 TowerType.SCOUT -> SpriteManager.towerScout
                 TowerType.ARTILLERY -> SpriteManager.towerArtillery
                 TowerType.FROST -> SpriteManager.towerFrost
+                TowerType.GOKU -> SpriteManager.towerGokuIdle
             }
             drawRadius(canvas, dragX, dragY, type.baseRange, isDragValid, isPreview = true)
             paint.alpha = 150

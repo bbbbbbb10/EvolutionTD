@@ -1,7 +1,8 @@
+@file:Suppress("DEPRECATION")
+
 package com.bbb.evolutiontd
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var overlayLeaderboard: FrameLayout
     private lateinit var recyclerLeaderboard: RecyclerView
     private lateinit var btnCloseLeaderboard: Button
+    private lateinit var btnContinue: Button
 
     // HUD
     private lateinit var gameHud: RelativeLayout
@@ -57,6 +59,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnBuyScout: Button
     private lateinit var btnBuyArtillery: Button
     private lateinit var btnBuyFrost: Button
+    private lateinit var btnBuyGoku: Button
 
     // УЛУЧШЕНИЯ
     private lateinit var txtTowerStats: TextView
@@ -70,18 +73,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // 1. Скрываем системные панели СРАЗУ при создании
         hideSystemUI()
-
         setContentView(R.layout.activity_main)
 
         SpriteManager.init(this)
+        SoundManager.init(this)
+        GameSaveManager.init(this)
 
         val displayMetrics = DisplayMetrics()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-
-        // Используем реальные размеры экрана (включая области под камерой и кнопками)
         val realWidth = displayMetrics.widthPixels
         val realHeight = displayMetrics.heightPixels
 
@@ -96,44 +96,39 @@ class MainActivity : AppCompatActivity() {
         setupShopTouchListeners()
         setupMenuToggle()
 
+        checkSaveGame()
+
         Toast.makeText(this, "Welcome, ${FirebaseHelper.currentUserName}!", Toast.LENGTH_LONG).show()
 
         startUiUpdater()
     }
 
-    // 2. Гарантируем скрытие панелей, если фокус вернулся (например, закрыли шторку уведомлений)
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            hideSystemUI()
-        }
+        if (hasFocus) hideSystemUI()
     }
 
-    // --- ФУНКЦИЯ ДЛЯ ПОЛНОЭКРАННОГО РЕЖИМА ---
     private fun hideSystemUI() {
-        // Заставляем контент рисоваться под системными барами
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         val controller = WindowCompat.getInsetsController(window, window.decorView)
-        // Скрываем и навигацию (снизу), и статус бар (сверху)
         controller.hide(WindowInsetsCompat.Type.systemBars())
-        // Бары появятся, если свайпнуть от края, и потом снова исчезнут
         controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-        // ВАЖНО ДЛЯ POCO / XIAOMI / SAMSUNG:
-        // Разрешаем рисовать в области выреза камеры (Notch)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             val attrib = window.attributes
             attrib.layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
             window.attributes = attrib
         }
     }
-    // -----------------------------------------
 
     override fun onPause() {
         super.onPause()
         if (::gameManager.isInitialized && gameManager.state == GameState.PLAYING) {
             gameManager.state = GameState.PAUSED
+
+            // --- ИСПРАВЛЕНИЕ: МЫ БОЛЬШЕ НЕ СОХРАНЯЕМСЯ ЗДЕСЬ! ---
+            // Если сохраняться здесь, игрок сохранит нафармленные деньги, но волна начнется заново.
+            // Теперь сохранение происходит ТОЛЬКО автоматически в начале волны (в GameManager).
+
             runOnUiThread {
                 menuPause.visibility = View.VISIBLE
                 btnResume.visibility = View.VISIBLE
@@ -143,10 +138,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // При убивании приложения тоже не сохраняем "грязный" прогресс, только рекорд
     override fun onDestroy() {
         super.onDestroy()
-        if (::gameManager.isInitialized && (gameManager.state == GameState.PLAYING || gameManager.state == GameState.PAUSED)) {
+        if (::gameManager.isInitialized) {
             FirebaseHelper.saveScore(gameManager.wave)
+        }
+    }
+
+    private fun checkSaveGame() {
+        if (GameSaveManager.hasSave()) {
+            btnContinue.visibility = View.VISIBLE
+            val data = GameSaveManager.loadGame()
+            if (data != null) {
+                btnContinue.text = "CONTINUE (Wave ${data.wave})"
+            }
+        } else {
+            btnContinue.visibility = View.GONE
         }
     }
 
@@ -155,31 +163,27 @@ class MainActivity : AppCompatActivity() {
         gameHud = findViewById(R.id.gameHud)
         menuPause = findViewById(R.id.menuPause)
         btnResume = findViewById(R.id.btnResume)
-
+        btnContinue = findViewById(R.id.btnContinue)
         btnLeaderboard = findViewById(R.id.btnLeaderboard)
         overlayLeaderboard = findViewById(R.id.overlayLeaderboard)
         recyclerLeaderboard = findViewById(R.id.recyclerLeaderboard)
         btnCloseLeaderboard = findViewById(R.id.btnCloseLeaderboard)
         recyclerLeaderboard.layoutManager = LinearLayoutManager(this)
-
         sideMenuContainer = findViewById(R.id.sideMenuContainer)
         menuContent = findViewById(R.id.menuContent)
         btnToggleMenu = findViewById(R.id.btnToggleMenu)
-
         shopLayout = findViewById(R.id.shopLayout)
         upgradeLayout = findViewById(R.id.upgradeLayout)
-
         txtWave = findViewById(R.id.txtWave)
         txtMoney = findViewById(R.id.txtMoney)
         txtLives = findViewById(R.id.txtLives)
         btnPause = findViewById(R.id.btnPause)
         btnSpeed = findViewById(R.id.btnSpeed)
         btnSkipWave = findViewById(R.id.btnSkipWave)
-
         btnBuyScout = findViewById(R.id.btnBuyScout)
         btnBuyArtillery = findViewById(R.id.btnBuyArtillery)
         btnBuyFrost = findViewById(R.id.btnBuyFrost)
-
+        btnBuyGoku = findViewById(R.id.btnBuyGoku)
         txtTowerStats = findViewById(R.id.txtTowerStats)
         btnUpgrade = findViewById(R.id.btnUpgrade)
         btnSell = findViewById(R.id.btnSell)
@@ -201,6 +205,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupMenuListeners() {
+        btnContinue.setOnClickListener {
+            val data = GameSaveManager.loadGame()
+            if (data != null) {
+                gameManager.continueGame(data)
+                menuMain.visibility = View.GONE
+                gameHud.visibility = View.VISIBLE
+                menuPause.visibility = View.GONE
+                btnResume.visibility = View.VISIBLE
+            }
+        }
+
         findViewById<Button>(R.id.btnEndlessMode).setOnClickListener {
             gameManager.startGame()
             menuMain.visibility = View.GONE
@@ -210,11 +225,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnCreator).setOnClickListener {
-            Toast.makeText(this, "Made by: buwu", Toast.LENGTH_LONG).show()
-        }
-
-        findViewById<Button>(R.id.btnExitGame).setOnClickListener {
-            finish()
+            Toast.makeText(this, "Made by buwu", Toast.LENGTH_LONG).show()
         }
 
         btnLeaderboard.setOnClickListener {
@@ -231,11 +242,11 @@ class MainActivity : AppCompatActivity() {
         btnResume.setOnClickListener {
             gameManager.state = GameState.PLAYING
             menuPause.visibility = View.GONE
-            // При возврате в игру снова скрываем UI на всякий случай
             hideSystemUI()
         }
 
         findViewById<Button>(R.id.btnRestart).setOnClickListener {
+            // Перед рестартом сохранять рекорд, но НЕ текущее состояние
             if (gameManager.state != GameState.GAMEOVER && gameManager.state != GameState.MENU) {
                 FirebaseHelper.saveScore(gameManager.wave)
             }
@@ -247,12 +258,16 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnMenu).setOnClickListener {
             if (gameManager.state != GameState.GAMEOVER && gameManager.state != GameState.MENU) {
                 FirebaseHelper.saveScore(gameManager.wave)
+                // --- ИСПРАВЛЕНИЕ: УБРАЛ GameSaveManager.saveGame() ОТСЮДА ---
+                // Мы не сохраняем состояние при выходе. Мы надеемся на автосейв начала волны.
             }
             gameManager.state = GameState.MENU
             menuPause.visibility = View.GONE
             gameHud.visibility = View.GONE
             menuMain.visibility = View.VISIBLE
             btnResume.visibility = View.VISIBLE
+
+            checkSaveGame()
         }
     }
 
@@ -296,6 +311,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.btnBuyScout -> TowerType.SCOUT
                 R.id.btnBuyArtillery -> TowerType.ARTILLERY
                 R.id.btnBuyFrost -> TowerType.FROST
+                R.id.btnBuyGoku -> TowerType.GOKU
                 else -> TowerType.SCOUT
             }
 
@@ -310,7 +326,19 @@ class MainActivity : AppCompatActivity() {
                     return@OnTouchListener true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                    gameView.finishDrag()
+                    val success = gameView.finishDrag()
+
+                    if (success) {
+                        // Toast.makeText(this, "Башня построена!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Если не построилось - проверяем причины и пишем игроку
+                        if (gameManager.money < type.baseCost) {
+                            Toast.makeText(this, "Need $${type.baseCost}!", Toast.LENGTH_SHORT).show()
+                        } else if (gameManager.getTowerCount(type) >= type.maxLimit) {
+                            // Сообщение о лимите
+                            Toast.makeText(this, "Max limit reached (${type.maxLimit})!", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                     return@OnTouchListener true
                 }
             }
@@ -320,6 +348,7 @@ class MainActivity : AppCompatActivity() {
         btnBuyScout.setOnTouchListener(touchListener)
         btnBuyArtillery.setOnTouchListener(touchListener)
         btnBuyFrost.setOnTouchListener(touchListener)
+        btnBuyGoku.setOnTouchListener(touchListener)
 
         btnCloseShop.setOnClickListener {
             selectedTower?.isSelected = false
@@ -388,6 +417,10 @@ class MainActivity : AppCompatActivity() {
                             if (gameManager.state == GameState.GAMEOVER) {
                                 if (menuPause.visibility != View.VISIBLE) {
                                     FirebaseHelper.saveScore(gameManager.wave)
+                                    // При проигрыше удаляем сохранение, чтобы нельзя было продолжить
+                                    GameSaveManager.clearSave()
+                                    checkSaveGame()
+
                                     btnResume.visibility = View.GONE
                                     menuPause.visibility = View.VISIBLE
                                     val title = menuPause.findViewWithTag<TextView>("title")

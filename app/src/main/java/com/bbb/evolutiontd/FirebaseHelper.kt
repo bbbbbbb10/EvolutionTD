@@ -79,7 +79,6 @@ object FirebaseHelper {
                     currentUserName = name
                     currentBestWave = 0
 
-                    // ИСПРАВЛЕНИЕ: ПРИНУДИТЕЛЬНО ПИШЕМ В БАЗУ
                     val newUser = UserRecord(name, 0)
                     database.child("users").child(name).setValue(newUser)
 
