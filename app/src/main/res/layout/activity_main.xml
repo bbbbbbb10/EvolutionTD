@@ -54,63 +54,94 @@
                 android:paddingBottom="1dp"
                 android:fontFamily="@font/pixel_solid" />
 
+            <!-- НОВЫЕ СОЦИАЛЬНЫЕ КНОПКИ -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="1dp">
+
+                <Button
+                    android:id="@+id/btnOpenChat"
+                    android:layout_width="65dp"
+                    android:layout_height="50dp"
+                    android:text="💬"
+                    android:textSize="20sp"
+                    android:backgroundTint="#2196F3"
+                    android:layout_marginEnd="2dp"/>
+
+                <Button
+                    android:id="@+id/btnOpenFriends"
+                    android:layout_width="65dp"
+                    android:layout_height="50dp"
+                    android:text="👥"
+                    android:textSize="20sp"
+                    android:backgroundTint="#9C27B0"
+                    android:layout_marginEnd="2dp"/>
+
+                <Button
+                    android:id="@+id/btnOpenStats"
+                    android:layout_width="65dp"
+                    android:layout_height="50dp"
+                    android:text="📊"
+                    android:textSize="20sp"
+                    android:backgroundTint="#FF5722"/>
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnLeaderboard"
+                android:layout_width="200dp"
+                android:layout_height="50dp"
+                android:text="🏆 LEADERBOARD"
+                android:textSize="10sp"
+                android:fontFamily="@font/pixel_solid"
+                android:paddingBottom="1px"
+                android:backgroundTint="#FF9800"
+                android:layout_marginBottom="1dp"
+               />
+
             <Button
                 android:id="@+id/btnCreator"
                 android:layout_width="200dp"
-                android:layout_height="60dp"
+                android:layout_height="40dp"
                 android:text="CREATOR"
-                android:textSize="12sp"
-                android:textStyle="bold"
+                android:textSize="10sp"
                 android:textColor="#FFF"
-                android:backgroundTint="#2196F3"
+                android:backgroundTint="#607D8B"
                 android:layout_marginBottom="1dp"
-                android:paddingBottom="1dp"
-                android:fontFamily="@font/pixel_solid"
-                />
+                android:paddingBottom="1px"
+                android:fontFamily="@font/pixel_solid" />
 
             <Button
                 android:id="@+id/btnExitGame"
                 android:layout_width="200dp"
-                android:layout_height="60dp"
-                android:text="QUIT"
-                android:textSize="12sp"
-                android:textStyle="bold"
+                android:layout_height="40dp"
+                android:text="LOGOUT / QUIT"
+                android:textSize="10sp"
                 android:textColor="#FFF"
+                android:paddingBottom="1px"
                 android:backgroundTint="#F44336"
-                android:layout_marginBottom="1dp"
-                android:paddingBottom="1dp"
                 android:fontFamily="@font/pixel_solid" />
-
-            <Button
-                android:id="@+id/btnLeaderboard"
-                android:layout_width="100dp"
-                android:layout_height="60dp"
-                android:text="🏆"
-                android:textSize="28sp"
-                android:backgroundTint="#FF9800"/>
 
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- 3. ОКНО ЛИДЕРБОРДА -->
+    <!-- 3. ОКНО ЛИДЕРБОРДА (Твое существующее) -->
     <FrameLayout
         android:id="@+id/overlayLeaderboard"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#333333"
+        android:background="#E61A1A1A"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
         android:elevation="15dp">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:background="#333333"
-            android:paddingHorizontal="60dp"> <!-- Отступы, чтобы текст не лип к краям -->
-
+            android:paddingHorizontal="60dp">
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -118,78 +149,374 @@
                 android:textColor="#FFD700"
                 android:textSize="25sp"
                 android:gravity="center"
-                android:textStyle="bold"
                 android:paddingTop="20dp"
                 android:fontFamily="@font/pixel_solid"
                 android:paddingBottom="20dp"/>
-
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclerLeaderboard"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"/>
-
             <Button
                 android:id="@+id/btnCloseLeaderboard"
-                android:layout_width="250dp"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="CLOSE"
                 android:backgroundTint="#F44336"
                 android:fontFamily="@font/pixel_solid"
-                android:paddingBottom="1dp"
-                android:layout_margin="20dp"/>
+                android:layout_margin="10dp"/>
         </LinearLayout>
     </FrameLayout>
 
-    <!-- 4. ИГРОВОЙ ИНТЕРФЕЙС (HUD) -->
+    <!-- НОВОЕ: ОКНО ГЛОБАЛЬНОГО ЧАТА -->
+    <FrameLayout
+        android:id="@+id/overlayChat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E61A1A1A"
+        android:visibility="gone"
+        android:elevation="16dp"
+        android:clickable="true">
+        <LinearLayout
+            android:layout_width="450dp"
+            android:layout_height="320dp"
+            android:layout_gravity="center"
+            android:background="#333"
+            android:padding="6dp"
+            android:orientation="vertical">
+
+            <!-- ВЕРХНЯЯ ПАНЕЛЬ С КНОПКОЙ И ЗАГОЛОВКОМ -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp">
+
+                <Button
+                    android:id="@+id/btnCloseChat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:backgroundTint="#F44336"
+                    android:paddingTop="14dp"
+                    android:fontFamily="@font/pixel_solid"
+                    android:text="BACK"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="GLOBAL CHAT"
+                    android:paddingTop="8dp"
+                    android:textColor="#2196F3"
+                    android:textSize="13sp"
+                    android:fontFamily="@font/pixel_solid" />
+            </RelativeLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginVertical="4dp"
+                android:background="#222">
+
+                <TextView
+                    android:id="@+id/tvChatLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textColor="#FFF"
+                    android:textSize="14sp"
+                    android:text="Connecting to chat..."/>
+            </ScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/etChatInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Type message..."
+                    android:textColor="#FFF"
+                    android:background="#444"
+                    android:padding="10dp"
+                    android:textSize="12sp"/>
+                <Button
+                    android:id="@+id/btnChatSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="SEND"
+                    android:paddingTop="14dp"
+                    android:backgroundTint="#4CAF50"
+                    android:fontFamily="@font/pixel_solid"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+    <!-- ЧАТ С ДРУГОМ -->
+    <FrameLayout
+        android:id="@+id/overlayPrivateChat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E61A1A1A"
+        android:visibility="gone"
+        android:elevation="21dp"
+        android:clickable="true">
+        <LinearLayout
+            android:layout_width="450dp"
+            android:layout_height="320dp"
+            android:layout_gravity="center"
+            android:background="#333"
+            android:padding="6dp"
+            android:orientation="vertical">
+
+            <!-- ВЕРХНЯЯ ПАНЕЛЬ: BACK СЛЕВА, ТЕКСТ ПО ЦЕНТРУ -->
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="1dp">
+
+                <Button
+                    android:id="@+id/btnClosePrivateChat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:backgroundTint="#F44336"
+                    android:paddingTop="12dp"
+                    android:fontFamily="@font/pixel_solid"
+                    android:text="BACK"
+                    android:textSize="10sp" />
+
+                <TextView
+                    android:id="@+id/tvPrivateChatTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="CHAT WITH FRIEND"
+                    android:paddingTop="8dp"
+                    android:paddingLeft="30dp"
+                    android:textColor="#2196F3"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/pixel_solid"
+                    android:gravity="center" />
+            </RelativeLayout>
+
+            <!-- ПОЛЕ ЧАТА -->
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginVertical="4dp"
+                android:background="#222">
+                <TextView
+                    android:id="@+id/tvPrivateChatLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:textColor="#FFF"
+                    android:textSize="14sp" />
+            </ScrollView>
+
+            <!-- ПАНЕЛЬ ВВОДА -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <EditText
+                    android:id="@+id/etPrivateChatInput"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Enter message..."
+                    android:textColor="#FFF"
+                    android:textSize="12sp"
+                    android:background="#444"
+                    android:padding="10dp" />
+                <Button
+                    android:id="@+id/btnPrivateChatSend"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:text="SEND"
+                    android:backgroundTint="#4CAF50"
+                    android:fontFamily="@font/pixel_solid"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- НОВОЕ: ОКНО ДРУЗЕЙ (ДВУХПАНЕЛЬНОЕ) -->
+    <FrameLayout
+        android:id="@+id/overlayFriends"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E61A1A1A"
+        android:visibility="gone"
+        android:elevation="17dp"
+        android:clickable="true">
+        <LinearLayout
+            android:layout_width="650dp"
+            android:layout_height="350dp"
+            android:layout_gravity="center"
+            android:background="#333"
+            android:padding="15dp"
+            android:orientation="horizontal">
+
+            <!-- ЛЕВАЯ ПАНЕЛЬ: ПОИСК И ЗАПРОСЫ -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="FIND PLAYERS"
+                    android:textColor="#2196F3"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/pixel_solid"/>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:orientation="horizontal">
+                    <EditText
+                        android:id="@+id/etSearchUser"
+                        android:layout_width="0dp"
+                        android:layout_height="40dp"
+                        android:layout_weight="1"
+                        android:hint="Nickname"
+                        android:background="#444"
+                        android:paddingLeft="10dp"
+                        android:textColor="#FFF"
+                        android:textSize="10sp"/>
+                    <Button
+                        android:id="@+id/btnSearchAdd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:text="ADD"
+                        android:backgroundTint="#4CAF50"
+                        android:textSize="8sp"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="REQUESTS"
+                    android:layout_marginTop="10dp"
+                    android:textColor="#FF9800"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/pixel_solid"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvRequests"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:background="#222"/>
+            </LinearLayout>
+
+            <View android:layout_width="2dp" android:layout_height="match_parent" android:background="#555" android:layout_marginHorizontal="10dp"/>
+
+            <!-- ПРАВАЯ ПАНЕЛЬ: СПИСОК ДРУЗЕЙ -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="FRIENDS LIST"
+                    android:textColor="#9C27B0"
+                    android:textSize="12sp"
+                    android:fontFamily="@font/pixel_solid"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvFriends"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"
+                    android:layout_marginTop="5dp"
+                    android:background="#222"/>
+                <Button
+                    android:id="@+id/btnCloseFriends"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:text="CLOSE"
+                    android:backgroundTint="#F44336"
+                    android:fontFamily="@font/pixel_solid"
+                    android:layout_marginTop="5dp"/>
+            </LinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- НОВОЕ: ОКНО СТАТИСТИКИ ИГРОКА -->
+    <FrameLayout
+        android:id="@+id/overlayStats"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#E61A1A1A"
+        android:visibility="gone"
+        android:elevation="18dp"
+        android:clickable="true">
+        <LinearLayout
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="#333"
+            android:padding="20dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PLAYER PROFILE"
+                android:textColor="#FF9800"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:fontFamily="@font/pixel_solid"/>
+            <TextView
+                android:id="@+id/tvStatsView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:textColor="#FFF"
+                android:textSize="14sp"
+                android:fontFamily="@font/pixel_solid"
+                android:text="Loading stats..."/>
+            <Button
+                android:id="@+id/btnCloseStats"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="BACK"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="#F44336"
+                android:fontFamily="@font/pixel_solid"/>
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- 4. ИГРОВОЙ ИНТЕРФЕЙС (HUD - Твой существующий) -->
     <RelativeLayout
         android:id="@+id/gameHud"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone">
 
-        <!-- Верхняя панель -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="10dp"
             android:background="#48000000">
-            <Button
-                android:id="@+id/btnPause"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:text="||"
-                android:layout_marginEnd="5dp"/>
-            <TextView
-                android:id="@+id/txtWave"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Wave: 1"
-                android:textColor="#FFF"
-                android:textSize="10sp"
-                android:fontFamily="@font/pixel_solid"
-                android:layout_marginEnd="15dp"/>
-            <TextView
-                android:id="@+id/txtMoney"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="$100"
-                android:textColor="#FFD700"
-                android:fontFamily="@font/pixel_solid"
-                android:textSize="10dp"
-                android:layout_marginEnd="15dp"/>
-            <TextView
-                android:id="@+id/txtLives"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="♥20"
-                android:textColor="#F44336"
-                android:fontFamily="@font/pixel_solid"
-                android:textSize="11dp" />
+            <Button android:id="@+id/btnPause" android:layout_width="40dp" android:layout_height="40dp" android:text="||" android:layout_marginEnd="5dp"/>
+            <TextView android:id="@+id/txtWave" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Wave: 1" android:textColor="#FFF" android:textSize="10sp" android:fontFamily="@font/pixel_solid" android:layout_marginEnd="15dp"/>
+            <TextView android:id="@+id/txtMoney" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="$100" android:textColor="#FFD700" android:fontFamily="@font/pixel_solid" android:textSize="10dp" android:layout_marginEnd="15dp"/>
+            <TextView android:id="@+id/txtLives" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="♥20" android:textColor="#F44336" android:fontFamily="@font/pixel_solid" android:textSize="11dp" />
         </LinearLayout>
 
-        <!-- Нижние кнопки -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -197,27 +524,10 @@
             android:layout_alignParentStart="true"
             android:orientation="horizontal"
             android:padding="10dp">
-            <Button
-                android:id="@+id/btnSpeed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="1x"
-                android:fontFamily="@font/pixel_solid"
-                android:textSize="11dp"
-                android:paddingBottom="1dp"
-                android:layout_marginEnd="10dp"/>
-            <Button
-                android:id="@+id/btnSkipWave"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="SKIP WAVE"
-                android:fontFamily="@font/pixel_solid"
-                android:textSize="11dp"
-                android:paddingBottom="1dp"
-                android:backgroundTint="#FF9800"/>
+            <Button android:id="@+id/btnSpeed" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="1x" android:fontFamily="@font/pixel_solid" android:textSize="11dp" android:paddingBottom="1dp" android:layout_marginEnd="10dp"/>
+            <Button android:id="@+id/btnSkipWave" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="SKIP WAVE" android:fontFamily="@font/pixel_solid" android:textSize="11dp" android:paddingBottom="1dp" android:backgroundTint="#FF9800"/>
         </LinearLayout>
 
-        <!-- МЕНЮ СПРАВА -->
         <LinearLayout
             android:id="@+id/sideMenuContainer"
             android:layout_width="wrap_content"
@@ -225,17 +535,7 @@
             android:layout_alignParentEnd="true"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btnToggleMenu"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:layout_gravity="top"
-                android:layout_marginTop="10dp"
-                android:text=">"
-                android:backgroundTint="#AA000000"
-                android:padding="0dp"
-                android:textColor="#FFF"
-                android:textSize="20sp"/>
+            <Button android:id="@+id/btnToggleMenu" android:layout_width="50dp" android:layout_height="50dp" android:layout_gravity="top" android:layout_marginTop="10dp" android:text=">" android:backgroundTint="#AA000000" android:textColor="#FFF" android:textSize="20sp"/>
 
             <LinearLayout
                 android:id="@+id/menuContent"
@@ -249,105 +549,30 @@
                     android:id="@+id/shopLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:visibility="visible">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="SHOP"
-                        android:textColor="#FFF"
-                        android:gravity="center"
-                        android:textSize="18sp"
-                        android:fontFamily="@font/pixel_solid"
-                        android:layout_marginBottom="10dp"/>
-                    <Button
-                        android:id="@+id/btnBuyScout"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Scout($50)"
-                        android:fontFamily="@font/pixel_solid"
-                        android:textSize="10dp"
-                        android:paddingBottom="1dp"
-                        android:backgroundTint="#BF4CAF50"/>
-                    <Button
-                        android:id="@+id/btnBuyArtillery"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Artillery($150)"
-                        android:fontFamily="@font/pixel_solid"
-                        android:textSize="9dp"
-                        android:paddingBottom="1dp"
-                        android:backgroundTint="#BFFF5722"/>
-                    <Button
-                        android:id="@+id/btnBuyFrost"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Frost($200)"
-                        android:fontFamily="@font/pixel_solid"
-                        android:textSize="10dp"
-                        android:paddingBottom="1dp"
-                        android:backgroundTint="#BF2196F3"/>
+                    android:orientation="vertical">
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="SHOP" android:textColor="#FFF" android:gravity="center" android:textSize="18sp" android:fontFamily="@font/pixel_solid" android:layout_marginBottom="10dp"/>
+                    <Button android:id="@+id/btnBuyScout" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Scout($50)" android:fontFamily="@font/pixel_solid" android:textSize="10dp" android:backgroundTint="#BF4CAF50"/>
+                    <Button android:id="@+id/btnBuyArtillery" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Artillery($150)" android:fontFamily="@font/pixel_solid" android:textSize="9dp" android:backgroundTint="#BFFF5722"/>
+                    <Button android:id="@+id/btnBuyFrost" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Frost($200)" android:fontFamily="@font/pixel_solid" android:textSize="10dp" android:backgroundTint="#BF2196F3"/>
                 </LinearLayout>
-                <!-- МЕНЮ АПГРЕЙДЫЫЫ -->
+
                 <LinearLayout
                     android:id="@+id/upgradeLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:visibility="gone">
-                    <TextView
-                        android:id="@+id/txtTowerStats"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Stats..."
-                        android:textColor="#DDD"
-                        android:textSize="7dp"
-                        android:fontFamily="@font/pixel_solid"
-                        android:paddingBottom="1dp"
-                        android:layout_marginBottom="5dp"/>
-                    <Button
-                        android:id="@+id/btnTargetStrategy"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                        android:text="Target: First"
-                        android:textSize="8sp"
-                        android:fontFamily="@font/pixel_solid"
-                        android:backgroundTint="#673AB7"
-                        android:paddingBottom="1dp"
-                        android:layout_marginBottom="5dp"/>
-                    <Button
-                        android:id="@+id/btnUpgrade"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Upgrade"
-                        android:textSize="10dp"
-                        android:fontFamily="@font/pixel_solid"
-                        android:paddingBottom="1dp"
-                        android:backgroundTint="#2196F3"/>
-                    <Button
-                        android:id="@+id/btnSell"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sell"
-                        android:textSize="10dp"
-                        android:fontFamily="@font/pixel_solid"
-                        android:paddingBottom="1dp"
-                        android:backgroundTint="#F44336"/>
-                    <Button
-                        android:id="@+id/btnCloseShop"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Back"
-                        android:textSize="10dp"
-                        android:fontFamily="@font/pixel_solid"
-                        android:paddingBottom="1dp"
-                        android:layout_marginTop="10dp"/>
+                    <TextView android:id="@+id/txtTowerStats" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Stats..." android:textColor="#DDD" android:textSize="7dp" android:fontFamily="@font/pixel_solid" android:layout_marginBottom="5dp"/>
+                    <Button android:id="@+id/btnTargetStrategy" android:layout_width="match_parent" android:layout_height="40dp" android:text="Target: First" android:textSize="8sp" android:fontFamily="@font/pixel_solid" android:backgroundTint="#673AB7" android:layout_marginBottom="5dp"/>
+                    <Button android:id="@+id/btnUpgrade" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Upgrade" android:textSize="10dp" android:fontFamily="@font/pixel_solid" android:backgroundTint="#2196F3"/>
+                    <Button android:id="@+id/btnSell" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Sell" android:textSize="10dp" android:fontFamily="@font/pixel_solid" android:backgroundTint="#F44336"/>
+                    <Button android:id="@+id/btnCloseShop" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Back" android:textSize="10dp" android:fontFamily="@font/pixel_solid" android:layout_marginTop="10dp"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- 5. МЕНЮ ПАУЗЫ -->
+    <!-- 5. МЕНЮ ПАУЗЫ (Твое существующее) -->
     <LinearLayout
         android:id="@+id/menuPause"
         android:layout_width="match_parent"
@@ -357,45 +582,10 @@
         android:background="#CC000000"
         android:visibility="gone"
         android:elevation="20dp">
-        <TextView
-            android:tag="title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="PAUSED"
-            android:textColor="#FFD700"
-            android:textSize="35dp"
-            android:shadowColor="#000000"
-            android:shadowDx="10"
-            android:shadowDy="10"
-            android:shadowRadius="10"
-            android:fontFamily="@font/pixel_font"
-            android:layout_marginBottom="20dp"/>
-        <Button
-            android:id="@+id/btnResume"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="RESUME"
-            android:textSize="11dp"
-            android:paddingBottom="1dp"
-            android:fontFamily="@font/pixel_solid"
-            android:backgroundTint="#4CAF50"/>
-        <Button
-            android:id="@+id/btnRestart"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="RESTART WAVE 1"
-            android:textSize="11dp"
-            android:paddingBottom="1dp"
-            android:fontFamily="@font/pixel_solid"
-            android:backgroundTint="#FF9800"/>
-        <Button
-            android:id="@+id/btnMenu"
-            android:layout_width="250dp"
-            android:layout_height="wrap_content"
-            android:text="MAIN MENU"
-            android:textSize="11dp"
-            android:paddingBottom="1dp"
-            android:fontFamily="@font/pixel_solid"
-            android:backgroundTint="#F44336"/>
+        <TextView android:tag="title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="PAUSED" android:textColor="#FFD700" android:textSize="35dp" android:fontFamily="@font/pixel_font" android:layout_marginBottom="20dp"/>
+        <Button android:id="@+id/btnResume" android:layout_width="250dp" android:layout_height="wrap_content" android:text="RESUME" android:fontFamily="@font/pixel_solid" android:backgroundTint="#4CAF50"/>
+        <Button android:id="@+id/btnRestart" android:layout_width="250dp" android:layout_height="wrap_content" android:text="RESTART" android:fontFamily="@font/pixel_solid" android:backgroundTint="#FF9800"/>
+        <Button android:id="@+id/btnMenu" android:layout_width="250dp" android:layout_height="wrap_content" android:text="MAIN MENU" android:fontFamily="@font/pixel_solid" android:backgroundTint="#F44336"/>
     </LinearLayout>
+
 </FrameLayout>

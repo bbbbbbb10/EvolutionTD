@@ -5,8 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bbb.evolutiontd.model.LeaderboardEntry
 
-class LeaderboardAdapter(private val list: List<UserRecord>) : RecyclerView.Adapter<LeaderboardAdapter.Holder>() {
+class LeaderboardAdapter(private val list: List<LeaderboardEntry>) : RecyclerView.Adapter<LeaderboardAdapter.Holder>() {
 
     class Holder(v: View) : RecyclerView.ViewHolder(v) {
         val tvRank: TextView = v.findViewById(R.id.tvRank)
@@ -25,7 +26,7 @@ class LeaderboardAdapter(private val list: List<UserRecord>) : RecyclerView.Adap
         holder.tvName.text = item.name
         holder.tvWave.text = "Wave ${item.bestWave}"
 
-        // Подсветка топ 3
+        // ВОЗВРАЩАЕМ ЦВЕТА ТОП-3
         val color = when(position) {
             0 -> 0xFFFFD700.toInt() // Gold
             1 -> 0xFFC0C0C0.toInt() // Silver

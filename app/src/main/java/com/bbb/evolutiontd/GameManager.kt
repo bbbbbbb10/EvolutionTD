@@ -20,6 +20,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
     var money = 450
     var lives = 20
     var wave = 0
+    var sessionKills = 0
     var state = GameState.MENU
 
     var gameSpeed = 1
@@ -51,6 +52,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
         money = 150
         lives = 20
         wave = 0
+        sessionKills = 0
         waveCooldown = 0
         gameSpeed = 1
         startNextWave()
@@ -109,6 +111,7 @@ class GameManager(private val screenWidth: Int, private val screenHeight: Int) {
         if (enemies.contains(e)) {
             money += e.reward
             enemies.remove(e)
+            sessionKills++
         }
     }
 

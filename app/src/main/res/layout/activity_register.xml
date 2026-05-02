@@ -10,19 +10,35 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Pixel Defence"
+        android:text="New Hero"
         android:textColor="#4CAF50"
         android:textSize="25sp"
         android:textStyle="bold"
         android:fontFamily="@font/pixel_font"
-        android:layout_marginBottom="40dp"/>
+        android:layout_marginBottom="30dp"/>
 
-    <!-- ПОЛЕ EMAIL -->
+    <!-- НИКНЕЙМ -->
     <EditText
-        android:id="@+id/etLoginEmail"
+        android:id="@+id/etRegName"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:hint="Enter Email"
+        android:hint="Nickname"
+        android:textColor="#FFF"
+        android:textColorHint="#AAA"
+        android:fontFamily="@font/pixel_solid"
+        android:background="#333"
+        android:paddingLeft="20dp"
+        android:paddingTop="16dp"
+        android:textSize="11dp"
+        android:singleLine="true"
+        android:layout_marginBottom="10dp"/>
+
+    <!-- EMAIL -->
+    <EditText
+        android:id="@+id/etRegEmail"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:hint="Email"
         android:inputType="textEmailAddress"
         android:textColor="#FFF"
         android:textColorHint="#AAA"
@@ -34,12 +50,12 @@
         android:singleLine="true"
         android:layout_marginBottom="10dp"/>
 
-    <!-- ПОЛЕ ПАРОЛЯ -->
+    <!-- ПАРОЛЬ -->
     <EditText
-        android:id="@+id/etLoginPass"
+        android:id="@+id/etRegPass"
         android:layout_width="300dp"
         android:layout_height="50dp"
-        android:hint="Enter Password"
+        android:hint="Password"
         android:inputType="textPassword"
         android:textColor="#FFF"
         android:textColorHint="#AAA"
@@ -52,14 +68,14 @@
         android:layout_marginBottom="20dp"/>
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnDoRegister"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:text="LOGIN"
+        android:text="CREATE"
         android:fontFamily="@font/pixel_solid"
         android:textSize="13dp"
         android:backgroundTint="#4CAF50"
-        android:paddingBottom="1dp"
+        android:paddingBottom="0dp"
         android:layout_marginBottom="10dp"/>
 
     <TextView
@@ -72,17 +88,17 @@
         android:layout_marginBottom="10dp"/>
 
     <Button
-        android:id="@+id/btnGoRegister"
+        android:id="@+id/btnBackToLogin"
         android:layout_width="300dp"
         android:fontFamily="@font/pixel_solid"
         android:layout_height="wrap_content"
         android:textSize="11dp"
-        android:text="CREATE ACCOUNT"
-        android:paddingBottom="1dp"
+        android:text="GO BACK"
+        android:paddingBottom="0dp"
         android:backgroundTint="#2196F3"/>
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/progressBarReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"

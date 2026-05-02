@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical"
+    android:background="#444"
+    android:layout_marginBottom="4dp">
+
+    <TextView
+        android:id="@+id/tvRequestName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="New Request"
+        android:textColor="#FF9800"
+        android:fontFamily="@font/pixel_solid"
+        android:textSize="10sp" />
+
+    <Button
+        android:id="@+id/btnAcceptFriend"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:text="V"
+        android:textSize="10sp"
+        android:backgroundTint="#4CAF50"
+        android:layout_marginEnd="4dp"/>
+
+    <Button
+        android:id="@+id/btnDeclineFriend"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:text="X"
+        android:textSize="10sp"
+        android:backgroundTint="#F44336"/>
+</LinearLayout>
