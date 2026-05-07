@@ -32,14 +32,28 @@ object FirebaseHelper {
     fun loadUserData(onComplete: (Boolean) -> Unit) {
         val u = uid ?: return
         db.child("users").child(u).get().addOnSuccessListener { snapshot ->
-            val profile = snapshot.getValue(UserProfile::class.java)
-            currentUserName = profile?.name ?: "Player"
+            try {
+                // Проверяем, существует ли узел вообще
+                if (snapshot.exists()) {
+                    val profile = snapshot.getValue(UserProfile::class.java)
+                    currentUserName = profile?.name ?: "Player"
 
-            db.child("leaderboard").child(u).child("bestWave").get().addOnSuccessListener { waveSnap ->
-                currentBestWave = waveSnap.getValue(Int::class.java) ?: 0
-                onComplete(true)
-            }.addOnFailureListener { onComplete(false) }
-        }.addOnFailureListener { onComplete(false) }
+                    db.child("leaderboard").child(u).child("bestWave").get().addOnSuccessListener { waveSnap ->
+                        currentBestWave = waveSnap.getValue(Int::class.java) ?: 0
+                        onComplete(true)
+                    }.addOnFailureListener { onComplete(false) }
+                } else {
+                    // Если узла нет (удалили в базе вручную)
+                    logout { onComplete(false) }
+                }
+            } catch (e: Exception) {
+                // Если данные в базе "кривые" и класс UserProfile не может их прочитать
+                android.util.Log.e("TD_ERROR", "Data format error: ${e.message}")
+                onComplete(false)
+            }
+        }.addOnFailureListener {
+            onComplete(false)
+        }
     }
 
     // 3. СОХРАНЕНИЕ РЕКОРДА И СТАТИСТИКИ УБИЙСТВ
@@ -186,9 +200,56 @@ object FirebaseHelper {
             callback(list.sortedByDescending { it.bestWave })
         }
     }
+    // Управление статусом "В сети"
+    fun managePresence() {
+        val u = uid ?: return
+        // Ссылка на узел статуса конкретного пользователя
+        val statusRef = db.child("status").child(u)
+
+        // Специальная ссылка Firebase, которая следит за соединением
+        val connectedRef = FirebaseDatabase.getInstance().getReference(".info/connected")
+
+        connectedRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val connected = snapshot.getValue(Boolean::class.java) ?: false
+                if (connected) {
+                    // Если соединение есть ставим online
+                    statusRef.child("online").setValue(true)
+
+                    // Если связь разорвется Firebase сам поставит false на сервере
+                    statusRef.child("online").onDisconnect().setValue(false)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    // Функция для получения статуса конкретного друга
+    fun getFriendStatus(friendUid: String, onUpdate: (Boolean) -> Unit) {
+        db.child("status").child(friendUid).child("online").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val isOnline = snapshot.getValue(Boolean::class.java) ?: false
+                onUpdate(isOnline)
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
 
     // 9. ВЫХОД
-    fun logout() {
-        auth.signOut()
+    fun logout(onComplete: () -> Unit) {
+        val u = uid ?: return
+
+        // 1. Сначала принудительно ставим статус "оффлайн" в базе
+        db.child("status").child(u).child("online").setValue(false).addOnCompleteListener {
+
+            // 2. Отменяем действие onDisconnect, чтобы оно не сработало позже случайно
+            db.child("status").child(u).child("online").onDisconnect().cancel()
+
+            // 3. Выходим из аккаунта Firebase
+            auth.signOut()
+
+            // 4. Сообщаем Activity, что можно переходить на экран логина
+            onComplete()
+        }
     }
 }

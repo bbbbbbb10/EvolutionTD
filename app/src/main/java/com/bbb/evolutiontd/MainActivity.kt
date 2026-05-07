@@ -79,6 +79,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         hideSystemUI()
         setContentView(R.layout.activity_main)
 
@@ -94,6 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         findViewById<FrameLayout>(R.id.gameContainer).addView(gameView)
 
+        FirebaseHelper.managePresence()
         bindViews()
         setupMenuListeners()
         setupGameListeners()
@@ -199,11 +201,13 @@ class MainActivity : AppCompatActivity() {
         }
 
         findViewById<Button>(R.id.btnExitGame).setOnClickListener {
-            FirebaseHelper.logout()
-            val intent = Intent(this, LoginActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            startActivity(intent)
-            finish()
+            // Вызываем обновленный метод и передаем в него код перехода
+            FirebaseHelper.logout {
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                finish()
+            }
         }
 
         btnLeaderboard.setOnClickListener {
